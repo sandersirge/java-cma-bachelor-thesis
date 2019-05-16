@@ -80,13 +80,13 @@ public class CMaInterpreterTest {
         pw.visit(STOREA, x);
         pw.visit(POP);
         pw.visit(JUMP, B);
-        pw.visitLabel(A);
+        pw.visit(A);
         pw.visit(LOADA, y);
         pw.visit(LOADA, x);
         pw.visit(SUB);
         pw.visit(STOREA, y);
         pw.visit(POP);
-        pw.visitLabel(B);
+        pw.visit(B);
 
         assertInterpreted(new CMaStack(15, 5), new CMaStack(15, 20));
         assertInterpreted(new CMaStack(5, 15), new CMaStack(20, 15));
@@ -98,7 +98,7 @@ public class CMaInterpreterTest {
 
         CMaLabel A = new CMaLabel();
         CMaLabel B = new CMaLabel();
-        pw.visitLabel(A);
+        pw.visit(A);
         pw.visit(LOADA, a);
         pw.visit(LOADC, 0);
         pw.visit(GE);
@@ -114,7 +114,7 @@ public class CMaInterpreterTest {
         pw.visit(STOREA, a);
         pw.visit(POP);
         pw.visit(JUMP, A);
-        pw.visitLabel(B);
+        pw.visit(B);
 
         assertInterpreted(new CMaStack(0, 5, 4), new CMaStack(20, 5, 0));
         assertInterpreted(new CMaStack(-4, 6, 4), new CMaStack(20, 6, 0));
@@ -127,7 +127,7 @@ public class CMaInterpreterTest {
 
         CMaLabel _while = new CMaLabel();
         CMaLabel _end = new CMaLabel();
-        pw.visitLabel(_while);
+        pw.visit(_while);
         pw.visit(LOADA, i);
         pw.visit(LOADA, n);
         pw.visit(LEQ);
@@ -146,7 +146,7 @@ public class CMaInterpreterTest {
         pw.visit(POP);
 
         pw.visit(JUMP, _while);
-        pw.visitLabel(_end);
+        pw.visit(_end);
         pw.visit(HALT);
 
         assertInterpreted(new CMaStack(5, 6, 120), new CMaStack(5, 1, 1));
@@ -164,7 +164,7 @@ public class CMaInterpreterTest {
         pw.visit(STOREA, z);
         pw.visit(POP);
 
-        pw.visitLabel(_while);
+        pw.visit(_while);
         pw.visit(LOADA, n);
         pw.visit(LOADC, 0);
         pw.visit(GR);
@@ -181,7 +181,7 @@ public class CMaInterpreterTest {
         pw.visit(STOREA, z);
         pw.visit(POP);
 
-        pw.visitLabel(_even);
+        pw.visit(_even);
         pw.visit(LOADA, x);
         pw.visit(DUP);
         pw.visit(MUL);
@@ -195,7 +195,7 @@ public class CMaInterpreterTest {
         pw.visit(POP);
 
         pw.visit(JUMP, _while);
-        pw.visitLabel(_end);
+        pw.visit(_end);
         pw.visit(HALT);
 
         assertInterpreted(new CMaStack(0, 43046721, 177147), new CMaStack(11, 3, 0));

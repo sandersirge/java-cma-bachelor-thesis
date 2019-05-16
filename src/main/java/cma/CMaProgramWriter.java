@@ -31,7 +31,7 @@ public class CMaProgramWriter {
         visit(new CMaLabelInstruction(code, label));
     }
 
-    public void visitLabel(CMaLabel label) {
+    public void visit(CMaLabel label) {
         labels.put(label, instructions.size());
     }
 
