@@ -5,7 +5,8 @@ import cma.CMaLabel;
 public class CMaLabelInstruction extends CMaInstruction<CMaLabelInstruction.Code> {
 
     public enum Code {
-        JUMP, JUMPZ,
+        JUMP,  // hüppa labelile
+        JUMPZ, // hüppa labelile kui stackipeale väärtus on 0
     };
 
     private final CMaLabel label;
