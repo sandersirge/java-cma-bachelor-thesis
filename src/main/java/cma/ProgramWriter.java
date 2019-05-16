@@ -8,7 +8,7 @@ import java.util.Map;
 public class ProgramWriter {
 
     private final List<Instruction> instructions = new ArrayList<>();
-    private final Map<String, Integer> labels = new HashMap<>();
+    private final Map<Label, Integer> labels = new HashMap<>();
 
     public void visit(Instruction instruction) {
         instructions.add(instruction);
@@ -22,11 +22,11 @@ public class ProgramWriter {
         visit(new ArgInstruction(code, arg));
     }
 
-    public void visit(JumpInstruction.Code code, String label) {
+    public void visit(JumpInstruction.Code code, Label label) {
         visit(new JumpInstruction(code, label));
     }
 
-    public void visitLabel(String label) {
+    public void visitLabel(Label label) {
         labels.put(label, instructions.size());
     }
 

@@ -7,9 +7,9 @@ import java.util.StringJoiner;
 public class Program {
 
     private final List<Instruction> instructions;
-    private final Map<String, Integer> labels;
+    private final Map<Label, Integer> labels;
 
-    public Program(List<Instruction> instructions, Map<String, Integer> labels) {
+    public Program(List<Instruction> instructions, Map<Label, Integer> labels) {
         this.instructions = instructions;
         this.labels = labels;
     }
@@ -18,7 +18,7 @@ public class Program {
         return instructions;
     }
 
-    public Map<String, Integer> getLabels() {
+    public Map<Label, Integer> getLabels() {
         return labels;
     }
 

@@ -6,14 +6,14 @@ public class JumpInstruction extends Instruction<JumpInstruction.Code> {
         JUMP, JUMPZ,
     };
 
-    private final String label;
+    private final Label label;
 
-    public JumpInstruction(Code code, String label) {
+    public JumpInstruction(Code code, Label label) {
         super(code);
         this.label = label;
     }
 
-    public String getLabel() {
+    public Label getLabel() {
         return label;
     }
 
