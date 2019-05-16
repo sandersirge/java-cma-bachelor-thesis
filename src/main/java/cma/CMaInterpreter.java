@@ -88,23 +88,23 @@ public class CMaInterpreter {
                             stack.push(lhs ^ rhs);
                             break;
                         case EQ:
-                            stack.push(bool2Integer(lhs == rhs));
+                            stack.push(CMaUtils.bool2int(lhs == rhs));
                             break;
                         case NEQ:
-                            stack.push(bool2Integer(lhs != rhs));
+                            stack.push(CMaUtils.bool2int(lhs != rhs));
                             break;
                         case LE:
-                            stack.push(bool2Integer(lhs < rhs));
+                            stack.push(CMaUtils.bool2int(lhs < rhs));
                             break;
                         case LEQ:
-                            stack.push(bool2Integer(lhs <= rhs));
+                            stack.push(CMaUtils.bool2int(lhs <= rhs));
                             break;
                         case GE:
                         case GR:
-                            stack.push(bool2Integer(lhs > rhs));
+                            stack.push(CMaUtils.bool2int(lhs > rhs));
                             break;
                         case GEQ:
-                            stack.push(bool2Integer(lhs >= rhs));
+                            stack.push(CMaUtils.bool2int(lhs >= rhs));
                             break;
                     }
                     break;
@@ -114,7 +114,7 @@ public class CMaInterpreter {
                     break;
                 case NOT:
                     arg = stack.pop();
-                    stack.push(bool2Integer(!integer2Bool(arg)));
+                    stack.push(CMaUtils.bool2int(!CMaUtils.int2bool(arg)));
                     break;
                 case POP:
                     stack.pop();
@@ -161,18 +161,10 @@ public class CMaInterpreter {
                     pc = program.getLabels().get(labelInstruction.getLabel());
                     break;
                 case JUMPZ:
-                    if (!integer2Bool(stack.pop()))
+                    if (!CMaUtils.int2bool(stack.pop()))
                         pc = program.getLabels().get(labelInstruction.getLabel());
                     break;
             }
-        }
-
-        private boolean integer2Bool(int i) {
-            return i != 0;
-        }
-
-        private Integer bool2Integer(boolean b) {
-            return b ? 1 : 0;
         }
     }
 }
