@@ -12,14 +12,7 @@ public class NoArgInstruction extends Instruction<NoArgInstruction.Code> {
         HALT,
     };
 
-    private final Code code;
-
     public NoArgInstruction(Code code) {
-        this.code = code;
-    }
-
-    @Override
-    public Code getCode() {
-        return code;
+        super(code);
     }
 }

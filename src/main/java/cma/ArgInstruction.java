@@ -7,17 +7,11 @@ public class ArgInstruction extends Instruction<ArgInstruction.Code> {
         LOADA, STOREA, // TODO: separte class for address argument instruction?
     };
 
-    private final Code code;
     private final int arg;
 
     public ArgInstruction(Code code, int arg) {
-        this.code = code;
+        super(code);
         this.arg = arg;
-    }
-
-    @Override
-    public Code getCode() {
-        return code;
     }
 
     public int getArg() {

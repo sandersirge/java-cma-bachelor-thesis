@@ -1,5 +1,14 @@
 package cma;
 
 public abstract class Instruction<Code> {
-    public abstract Code getCode();
+
+    protected final Code code;
+
+    protected Instruction(Code code) {
+        this.code = code;
+    }
+
+    public Code getCode() {
+        return code;
+    }
 }
