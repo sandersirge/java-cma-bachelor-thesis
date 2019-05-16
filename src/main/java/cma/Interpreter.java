@@ -9,10 +9,20 @@ public class Interpreter {
     private final Program program;
     private int pc = 0;
     private final Stack<Integer> stack;
+    private final InstructionVisitor instructionExecuteVisitor = new InstructionExecuteVisitor();
 
     private Interpreter(Program program, Stack<Integer> stack) {
         this.program = program;
         this.stack = new Stack<>(stack);
+    }
+
+    public static Stack<Integer> run(Program program) {
+        return run(program, new Stack<>());
+    }
+
+    public static Stack<Integer> run(Program program, Stack<Integer> stack) {
+        Interpreter interpreter = new Interpreter(program, stack);
+        return interpreter.execute();
     }
 
     private Stack<Integer> execute() {
@@ -25,9 +35,12 @@ public class Interpreter {
     }
 
     private void execute(Instruction instruction) {
-        // TODO: not use instanceof
-        if (instruction instanceof NoArgInstruction) {
-            NoArgInstruction noArgInstruction = (NoArgInstruction) instruction;
+        instructionExecuteVisitor.visit(instruction);
+    }
+
+    private class InstructionExecuteVisitor extends InstructionVisitor {
+        @Override
+        protected void visit(NoArgInstruction noArgInstruction) {
             int arg, lhs, rhs;
             switch (noArgInstruction.getCode()) {
                 case ADD:
@@ -116,28 +129,31 @@ public class Interpreter {
                     stack.set(arg, stack.peek());
                     break;
                 case HALT:
-                    pc = -1;
+                    pc = -1; // out of range pc halts
                     break;
             }
+
         }
-        else if (instruction instanceof ArgInstruction) {
-            ArgInstruction argInstruction = (ArgInstruction) instruction;
+
+        @Override
+        protected void visit(ArgInstruction argInstruction) {
             switch (argInstruction.getCode()) {
                 case LOADC:
                     stack.push(argInstruction.getArg());
                     break;
                 case LOADA:
-                    execute(new ArgInstruction(LOADC, argInstruction.getArg()));
-                    execute(new NoArgInstruction(LOAD));
+                    visit(new ArgInstruction(LOADC, argInstruction.getArg()));
+                    visit(new NoArgInstruction(LOAD));
                     break;
                 case STOREA:
-                    execute(new ArgInstruction(LOADC, argInstruction.getArg()));
-                    execute(new NoArgInstruction(STORE));
+                    visit(new ArgInstruction(LOADC, argInstruction.getArg()));
+                    visit(new NoArgInstruction(STORE));
                     break;
             }
         }
-        else if (instruction instanceof JumpInstruction) {
-            JumpInstruction jumpInstruction = (JumpInstruction) instruction;
+
+        @Override
+        protected void visit(JumpInstruction jumpInstruction) {
             switch (jumpInstruction.getCode()) {
                 case JUMP:
                     pc = program.getLabels().get(jumpInstruction.getLabel());
@@ -148,24 +164,13 @@ public class Interpreter {
                     break;
             }
         }
-        else
-            throw new UnsupportedOperationException("Unknown instruction");
-    }
 
-    private boolean integer2Bool(int i) {
-        return i != 0;
-    }
+        private boolean integer2Bool(int i) {
+            return i != 0;
+        }
 
-    private Integer bool2Integer(boolean b) {
-        return b ? 1 : 0;
-    }
-
-    public static Stack<Integer> run(Program program) {
-        return run(program, new Stack<>());
-    }
-
-    public static Stack<Integer> run(Program program, Stack<Integer> stack) {
-        Interpreter interpreter = new Interpreter(program, stack);
-        return interpreter.execute();
+        private Integer bool2Integer(boolean b) {
+            return b ? 1 : 0;
+        }
     }
 }

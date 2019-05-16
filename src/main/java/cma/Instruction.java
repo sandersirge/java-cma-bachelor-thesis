@@ -11,4 +11,6 @@ public abstract class Instruction<Code> {
     public Code getCode() {
         return code;
     }
+
+    public abstract void accept(InstructionVisitor visitor);
 }

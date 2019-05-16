@@ -15,4 +15,9 @@ public class NoArgInstruction extends Instruction<NoArgInstruction.Code> {
     public NoArgInstruction(Code code) {
         super(code);
     }
+
+    @Override
+    public void accept(InstructionVisitor visitor) {
+        visitor.visit(this);
+    }
 }

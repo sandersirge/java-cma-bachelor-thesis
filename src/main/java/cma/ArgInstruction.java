@@ -17,4 +17,9 @@ public class ArgInstruction extends Instruction<ArgInstruction.Code> {
     public int getArg() {
         return arg;
     }
+
+    @Override
+    public void accept(InstructionVisitor visitor) {
+        visitor.visit(this);
+    }
 }
