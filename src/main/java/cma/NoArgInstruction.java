@@ -20,4 +20,9 @@ public class NoArgInstruction extends Instruction<NoArgInstruction.Code> {
     public void accept(InstructionVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return code.name();
+    }
 }

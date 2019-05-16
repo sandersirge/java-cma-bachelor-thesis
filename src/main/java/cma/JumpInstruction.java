@@ -21,4 +21,9 @@ public class JumpInstruction extends Instruction<JumpInstruction.Code> {
     public void accept(InstructionVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return code.name() + " " + label;
+    }
 }

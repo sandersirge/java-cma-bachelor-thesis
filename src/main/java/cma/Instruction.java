@@ -13,4 +13,7 @@ public abstract class Instruction<Code> {
     }
 
     public abstract void accept(InstructionVisitor visitor);
+
+    @Override
+    public abstract String toString();
 }

@@ -22,4 +22,9 @@ public class ArgInstruction extends Instruction<ArgInstruction.Code> {
     public void accept(InstructionVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return code.name() + " " + arg;
+    }
 }
