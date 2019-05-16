@@ -1,9 +1,8 @@
 package cma;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+
+import static cma.instruction.CMaIntInstruction.Code.LOADC;
 
 public class CMaStack {
 
@@ -61,5 +60,12 @@ public class CMaStack {
     @Override
     public String toString() {
         return data.toString();
+    }
+
+    public CMaProgram toLoadProgram() {
+        CMaProgramWriter pw = new CMaProgramWriter();
+        for (int value : data)
+            pw.visit(LOADC, value);
+        return pw.write();
     }
 }

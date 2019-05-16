@@ -13,17 +13,17 @@ public class CMaInterpreter {
     private final CMaStack stack;
     private final CMaInstructionVisitor instructionExecuteVisitor = new InstructionExecuteVisitor();
 
-    private CMaInterpreter(CMaProgram program, CMaStack stack) {
+    private CMaInterpreter(CMaProgram program, CMaStack initialStack) {
         this.program = program;
-        this.stack = new CMaStack(stack);
+        this.stack = new CMaStack(initialStack);
     }
 
     public static CMaStack run(CMaProgram program) {
         return run(program, new CMaStack());
     }
 
-    public static CMaStack run(CMaProgram program, CMaStack stack) {
-        CMaInterpreter interpreter = new CMaInterpreter(program, stack);
+    public static CMaStack run(CMaProgram program, CMaStack initialStack) {
+        CMaInterpreter interpreter = new CMaInterpreter(program, initialStack);
         return interpreter.execute();
     }
 
