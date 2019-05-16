@@ -1,48 +1,50 @@
 package cma;
 
-import static cma.ArgInstruction.Code.LOADC;
-import static cma.NoArgInstruction.Code.LOAD;
-import static cma.NoArgInstruction.Code.STORE;
+import cma.instruction.*;
 
-public class Interpreter {
+import static cma.instruction.CMaBasicInstruction.Code.LOAD;
+import static cma.instruction.CMaBasicInstruction.Code.STORE;
+import static cma.instruction.CMaIntInstruction.Code.LOADC;
 
-    private final Program program;
+public class CMaInterpreter {
+
+    private final CMaProgram program;
     private int pc = 0;
-    private final Stack<Integer> stack;
-    private final InstructionVisitor instructionExecuteVisitor = new InstructionExecuteVisitor();
+    private final CMaStack stack;
+    private final CMaInstructionVisitor instructionExecuteVisitor = new InstructionExecuteVisitor();
 
-    private Interpreter(Program program, Stack<Integer> stack) {
+    private CMaInterpreter(CMaProgram program, CMaStack stack) {
         this.program = program;
-        this.stack = new Stack<>(stack);
+        this.stack = new CMaStack(stack);
     }
 
-    public static Stack<Integer> run(Program program) {
-        return run(program, new Stack<>());
+    public static CMaStack run(CMaProgram program) {
+        return run(program, new CMaStack());
     }
 
-    public static Stack<Integer> run(Program program, Stack<Integer> stack) {
-        Interpreter interpreter = new Interpreter(program, stack);
+    public static CMaStack run(CMaProgram program, CMaStack stack) {
+        CMaInterpreter interpreter = new CMaInterpreter(program, stack);
         return interpreter.execute();
     }
 
-    private Stack<Integer> execute() {
+    private CMaStack execute() {
         while (0 <= pc && pc < program.getInstructions().size()) {
-            Instruction instruction = program.getInstructions().get(pc);
+            CMaInstruction instruction = program.getInstructions().get(pc);
             pc++;
             execute(instruction);
         }
         return stack;
     }
 
-    private void execute(Instruction instruction) {
+    private void execute(CMaInstruction instruction) {
         instructionExecuteVisitor.visit(instruction);
     }
 
-    private class InstructionExecuteVisitor extends InstructionVisitor {
+    private class InstructionExecuteVisitor extends CMaInstructionVisitor {
         @Override
-        protected void visit(NoArgInstruction noArgInstruction) {
+        protected void visit(CMaBasicInstruction basicInstruction) {
             int arg, lhs, rhs;
-            switch (noArgInstruction.getCode()) {
+            switch (basicInstruction.getCode()) {
                 case ADD:
                 case SUB:
                 case MUL:
@@ -60,7 +62,7 @@ public class Interpreter {
                 case GEQ:
                     rhs = stack.pop();
                     lhs = stack.pop();
-                    switch (noArgInstruction.getCode()) {
+                    switch (basicInstruction.getCode()) {
                         case ADD:
                             stack.push(lhs + rhs);
                             break;
@@ -136,31 +138,31 @@ public class Interpreter {
         }
 
         @Override
-        protected void visit(ArgInstruction argInstruction) {
-            switch (argInstruction.getCode()) {
+        protected void visit(CMaIntInstruction intInstruction) {
+            switch (intInstruction.getCode()) {
                 case LOADC:
-                    stack.push(argInstruction.getArg());
+                    stack.push(intInstruction.getArg());
                     break;
                 case LOADA:
-                    visit(new ArgInstruction(LOADC, argInstruction.getArg()));
-                    visit(new NoArgInstruction(LOAD));
+                    visit(new CMaIntInstruction(LOADC, intInstruction.getArg()));
+                    visit(new CMaBasicInstruction(LOAD));
                     break;
                 case STOREA:
-                    visit(new ArgInstruction(LOADC, argInstruction.getArg()));
-                    visit(new NoArgInstruction(STORE));
+                    visit(new CMaIntInstruction(LOADC, intInstruction.getArg()));
+                    visit(new CMaBasicInstruction(STORE));
                     break;
             }
         }
 
         @Override
-        protected void visit(JumpInstruction jumpInstruction) {
-            switch (jumpInstruction.getCode()) {
+        protected void visit(CMaLabelInstruction labelInstruction) {
+            switch (labelInstruction.getCode()) {
                 case JUMP:
-                    pc = program.getLabels().get(jumpInstruction.getLabel());
+                    pc = program.getLabels().get(labelInstruction.getLabel());
                     break;
                 case JUMPZ:
                     if (!integer2Bool(stack.pop()))
-                        pc = program.getLabels().get(jumpInstruction.getLabel());
+                        pc = program.getLabels().get(labelInstruction.getLabel());
                     break;
             }
         }

@@ -1,15 +1,15 @@
-package cma;
+package cma.instruction;
 
-public class ArgInstruction extends Instruction<ArgInstruction.Code> {
+public class CMaIntInstruction extends CMaInstruction<CMaIntInstruction.Code> {
 
     public enum Code {
         LOADC,
-        LOADA, STOREA, // TODO: separte class for address argument instruction?
+        LOADA, STOREA,
     };
 
     private final int arg;
 
-    public ArgInstruction(Code code, int arg) {
+    public CMaIntInstruction(Code code, int arg) {
         super(code);
         this.arg = arg;
     }
@@ -19,7 +19,7 @@ public class ArgInstruction extends Instruction<ArgInstruction.Code> {
     }
 
     @Override
-    public void accept(InstructionVisitor visitor) {
+    public void accept(CMaInstructionVisitor visitor) {
         visitor.visit(this);
     }
 

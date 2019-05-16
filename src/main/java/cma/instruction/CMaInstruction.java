@@ -1,10 +1,10 @@
-package cma;
+package cma.instruction;
 
-public abstract class Instruction<Code> {
+public abstract class CMaInstruction<Code> {
 
     protected final Code code;
 
-    protected Instruction(Code code) {
+    protected CMaInstruction(Code code) {
         this.code = code;
     }
 
@@ -12,7 +12,7 @@ public abstract class Instruction<Code> {
         return code;
     }
 
-    public abstract void accept(InstructionVisitor visitor);
+    public abstract void accept(CMaInstructionVisitor visitor);
 
     @Override
     public abstract String toString();

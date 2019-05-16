@@ -5,27 +5,27 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import static cma.NoArgInstruction.Code.*;
-import static cma.ArgInstruction.Code.*;
-import static cma.JumpInstruction.Code.*;
+import static cma.instruction.CMaBasicInstruction.Code.*;
+import static cma.instruction.CMaIntInstruction.Code.*;
+import static cma.instruction.CMaLabelInstruction.Code.*;
 import static org.junit.Assert.*;
 
 @FixMethodOrder(MethodSorters.JVM)
-public class InterpreterTest {
+public class CMaInterpreterTest {
 
-    private ProgramWriter pw;
+    private CMaProgramWriter pw;
 
     @Before
     public void setUp() {
-        pw = new ProgramWriter();
+        pw = new CMaProgramWriter();
     }
 
-    private void assertInterpreted(Stack<Integer> expected) {
-        assertInterpreted(expected, new Stack<>());
+    private void assertInterpreted(CMaStack expected) {
+        assertInterpreted(expected, new CMaStack());
     }
 
-    private void assertInterpreted(Stack<Integer> expected, Stack<Integer> initial) {
-        Stack<Integer> actual = Interpreter.run(pw.write(), initial);
+    private void assertInterpreted(CMaStack expected, CMaStack initial) {
+        CMaStack actual = CMaInterpreter.run(pw.write(), initial);
         assertEquals(expected, actual);
     }
 
@@ -35,7 +35,7 @@ public class InterpreterTest {
         pw.visit(LOADC, 7);
         pw.visit(ADD);
 
-        assertInterpreted(new Stack<>(8));
+        assertInterpreted(new CMaStack(8));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class InterpreterTest {
         pw.visit(LOADC, x);
         pw.visit(STORE);
 
-        assertInterpreted(new Stack<>(19, 20, 19), new Stack<>(10, 20));
+        assertInterpreted(new CMaStack(19, 20, 19), new CMaStack(10, 20));
     }
 
     @Test
@@ -61,15 +61,15 @@ public class InterpreterTest {
         pw.visit(SUB);
         pw.visit(STOREA, x);
 
-        assertInterpreted(new Stack<>(19, 20, 19), new Stack<>(10, 20));
+        assertInterpreted(new CMaStack(19, 20, 19), new CMaStack(10, 20));
     }
 
     @Test
     public void test3() {
         int x = 0, y = 1;
 
-        Label A = new Label();
-        Label B = new Label();
+        CMaLabel A = new CMaLabel();
+        CMaLabel B = new CMaLabel();
         pw.visit(LOADA, x);
         pw.visit(LOADA, y);
         pw.visit(GE);
@@ -88,16 +88,16 @@ public class InterpreterTest {
         pw.visit(POP);
         pw.visitLabel(B);
 
-        assertInterpreted(new Stack<>(15, 5), new Stack<>(15, 20));
-        assertInterpreted(new Stack<>(5, 15), new Stack<>(20, 15));
+        assertInterpreted(new CMaStack(15, 5), new CMaStack(15, 20));
+        assertInterpreted(new CMaStack(5, 15), new CMaStack(20, 15));
     }
 
     @Test
     public void test4() {
         int a = 0, b = 1, c = 2;
 
-        Label A = new Label();
-        Label B = new Label();
+        CMaLabel A = new CMaLabel();
+        CMaLabel B = new CMaLabel();
         pw.visitLabel(A);
         pw.visit(LOADA, a);
         pw.visit(LOADC, 0);
@@ -116,17 +116,17 @@ public class InterpreterTest {
         pw.visit(JUMP, A);
         pw.visitLabel(B);
 
-        assertInterpreted(new Stack<>(0, 5, 4), new Stack<>(20, 5, 0));
-        assertInterpreted(new Stack<>(-4, 6, 4), new Stack<>(20, 6, 0));
-        assertInterpreted(new Stack<>(-1, 7, 3), new Stack<>(20, 7, 0));
+        assertInterpreted(new CMaStack(0, 5, 4), new CMaStack(20, 5, 0));
+        assertInterpreted(new CMaStack(-4, 6, 4), new CMaStack(20, 6, 0));
+        assertInterpreted(new CMaStack(-1, 7, 3), new CMaStack(20, 7, 0));
     }
 
     @Test
     public void test5() {
         int n = 0, i = 1, r = 2;
 
-        Label _while = new Label();
-        Label _end = new Label();
+        CMaLabel _while = new CMaLabel();
+        CMaLabel _end = new CMaLabel();
         pw.visitLabel(_while);
         pw.visit(LOADA, i);
         pw.visit(LOADA, n);
@@ -149,17 +149,17 @@ public class InterpreterTest {
         pw.visitLabel(_end);
         pw.visit(HALT);
 
-        assertInterpreted(new Stack<>(5, 6, 120), new Stack<>(5, 1, 1));
-        assertInterpreted(new Stack<>(6, 7, 720), new Stack<>(6, 1, 1));
+        assertInterpreted(new CMaStack(5, 6, 120), new CMaStack(5, 1, 1));
+        assertInterpreted(new CMaStack(6, 7, 720), new CMaStack(6, 1, 1));
     }
 
     @Test
     public void test6() {
         int n = 0, x = 1, z = 2;
 
-        Label _while = new Label();
-        Label _even = new Label();
-        Label _end = new Label();
+        CMaLabel _while = new CMaLabel();
+        CMaLabel _even = new CMaLabel();
+        CMaLabel _end = new CMaLabel();
         pw.visit(LOADC, 1);
         pw.visit(STOREA, z);
         pw.visit(POP);
@@ -198,6 +198,6 @@ public class InterpreterTest {
         pw.visitLabel(_end);
         pw.visit(HALT);
 
-        assertInterpreted(new Stack<>(0, 43046721, 177147), new Stack<>(11, 3, 0));
+        assertInterpreted(new CMaStack(0, 43046721, 177147), new CMaStack(11, 3, 0));
     }
 }

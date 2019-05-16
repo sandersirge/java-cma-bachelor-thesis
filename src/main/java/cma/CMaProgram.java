@@ -1,24 +1,26 @@
 package cma;
 
+import cma.instruction.CMaInstruction;
+
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
-public class Program {
+public class CMaProgram {
 
-    private final List<Instruction> instructions;
-    private final Map<Label, Integer> labels;
+    private final List<CMaInstruction> instructions;
+    private final Map<CMaLabel, Integer> labels;
 
-    public Program(List<Instruction> instructions, Map<Label, Integer> labels) {
+    public CMaProgram(List<CMaInstruction> instructions, Map<CMaLabel, Integer> labels) {
         this.instructions = instructions;
         this.labels = labels;
     }
 
-    public List<Instruction> getInstructions() {
+    public List<CMaInstruction> getInstructions() {
         return instructions;
     }
 
-    public Map<Label, Integer> getLabels() {
+    public Map<CMaLabel, Integer> getLabels() {
         return labels;
     }
 
@@ -26,9 +28,9 @@ public class Program {
     public String toString() {
         StringJoiner joiner = new StringJoiner("\n");
         for (int i = 0; i < instructions.size(); i++) {
-            Instruction instruction = instructions.get(i);
+            CMaInstruction instruction = instructions.get(i);
             StringBuilder builder = new StringBuilder();
-            for (Map.Entry<Label, Integer> labelEntry : labels.entrySet()) {
+            for (Map.Entry<CMaLabel, Integer> labelEntry : labels.entrySet()) {
                 if (labelEntry.getValue() == i)
                     builder.append(labelEntry.getKey()).append(": ");
             }

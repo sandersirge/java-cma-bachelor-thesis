@@ -1,6 +1,6 @@
-package cma;
+package cma.instruction;
 
-public class NoArgInstruction extends Instruction<NoArgInstruction.Code> {
+public class CMaBasicInstruction extends CMaInstruction<CMaBasicInstruction.Code> {
 
     public enum Code {
         ADD, SUB, MUL, DIV, MOD,
@@ -12,12 +12,12 @@ public class NoArgInstruction extends Instruction<NoArgInstruction.Code> {
         HALT,
     };
 
-    public NoArgInstruction(Code code) {
+    public CMaBasicInstruction(Code code) {
         super(code);
     }
 
     @Override
-    public void accept(InstructionVisitor visitor) {
+    public void accept(CMaInstructionVisitor visitor) {
         visitor.visit(this);
     }
 

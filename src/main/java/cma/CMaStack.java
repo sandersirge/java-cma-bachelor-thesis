@@ -5,41 +5,41 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-class Stack<T> {
+public class CMaStack {
 
-    private final List<T> data;
+    private final List<Integer> data;
 
-    public Stack() {
+    public CMaStack() {
         data = new ArrayList<>();
     }
 
-    public Stack(Stack<T> stack) {
+    public CMaStack(CMaStack stack) {
         data = new ArrayList<>(stack.data);
     }
 
-    public Stack(T... data) {
+    public CMaStack(Integer... data) {
         this.data = new ArrayList<>(Arrays.asList(data));
     }
 
-    public void push(T value) {
+    public void push(int value) {
         data.add(value);
     }
 
-    public T peek() {
+    public int peek() {
         return data.get(data.size() - 1);
     }
 
-    public T pop() {
-        T value = peek();
+    public int pop() {
+        int value = peek();
         data.remove(data.size() - 1);
         return value;
     }
 
-    public void set(int index, T value) {
+    public void set(int index, int value) {
         data.set(index, value);
     }
 
-    public T get(int index) {
+    public int get(int index) {
         return data.get(index);
     }
 
@@ -49,7 +49,7 @@ class Stack<T> {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        Stack<?> stack = (Stack<?>) o;
+        CMaStack stack = (CMaStack) o;
         return Objects.equals(data, stack.data);
     }
 
