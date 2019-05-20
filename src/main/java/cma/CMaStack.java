@@ -1,6 +1,9 @@
 package cma;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 import static cma.instruction.CMaIntInstruction.Code.LOADC;
 
@@ -12,12 +15,16 @@ public class CMaStack {
         data = new ArrayList<>();
     }
 
+    public CMaStack(List<Integer> data) {
+        this.data = new ArrayList<>(data);
+    }
+
     public CMaStack(CMaStack stack) {
-        data = new ArrayList<>(stack.data);
+        this(stack.data);
     }
 
     public CMaStack(Integer... data) {
-        this.data = new ArrayList<>(Arrays.asList(data));
+        this(Arrays.asList(data));
     }
 
     public void push(int value) {
