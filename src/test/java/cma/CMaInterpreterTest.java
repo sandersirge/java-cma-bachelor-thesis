@@ -25,7 +25,7 @@ public class CMaInterpreterTest {
     }
 
     private void assertInterpreted(CMaStack expected, CMaStack initial) {
-        CMaStack actual = CMaInterpreter.run(pw.write(), initial);
+        CMaStack actual = CMaInterpreter.run(pw.toProgram(), initial);
         assertEquals(expected, actual);
     }
 

@@ -35,7 +35,7 @@ public class CMaProgramWriter {
         labels.put(label, instructions.size());
     }
 
-    public CMaProgram write() {
+    public CMaProgram toProgram() {
         return new CMaProgram(instructions, labels);
     }
 }

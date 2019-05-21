@@ -73,6 +73,6 @@ public class CMaStack {
         CMaProgramWriter pw = new CMaProgramWriter();
         for (int value : data)
             pw.visit(LOADC, value);
-        return pw.write();
+        return pw.toProgram();
     }
 }

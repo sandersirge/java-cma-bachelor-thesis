@@ -50,7 +50,7 @@ public class CMaDemo {
         pw.visit(_end);
 
         // Nüüd loome programmi ja kirjutame faili
-        CMaProgram program = pw.write();
+        CMaProgram program = pw.toProgram();
         program.toFile("demo.cma", initialStack);
 
         // Võime ka programmi käivitada ja saame tulemuseks uue magasini seisundi
