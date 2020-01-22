@@ -29,14 +29,14 @@ public class CMaInterpreter {
 
     private CMaStack execute() {
         while (0 <= pc && pc < program.getInstructions().size()) {
-            CMaInstruction instruction = program.getInstructions().get(pc);
+            CMaInstruction<?> instruction = program.getInstructions().get(pc);
             pc++;
             execute(instruction);
         }
         return stack;
     }
 
-    private void execute(CMaInstruction instruction) {
+    private void execute(CMaInstruction<?> instruction) {
         instructionExecuteVisitor.visit(instruction);
     }
 

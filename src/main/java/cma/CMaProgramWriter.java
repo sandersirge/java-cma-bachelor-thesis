@@ -12,10 +12,10 @@ import java.util.Map;
 
 public class CMaProgramWriter {
 
-    private final List<CMaInstruction> instructions = new ArrayList<>();
+    private final List<CMaInstruction<?>> instructions = new ArrayList<>();
     private final Map<CMaLabel, Integer> labels = new HashMap<>();
 
-    public void visit(CMaInstruction instruction) {
+    public void visit(CMaInstruction<?> instruction) {
         instructions.add(instruction);
     }
 
