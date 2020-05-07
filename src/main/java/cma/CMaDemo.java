@@ -4,13 +4,11 @@ package cma;
 
 import java.io.IOException;
 
-import static cma.instruction.CMaBasicInstruction.Code.*;
-import static cma.instruction.CMaIntInstruction.Code.*;
-import static cma.instruction.CMaLabelInstruction.Code.JUMP;
-import static cma.instruction.CMaLabelInstruction.Code.JUMPZ;
-
 // Impordime vajalike käske. Nad on erinevates klassides, sest nad vajavad
 // erinev arv argumente (kompilaator hoiatab kui kasutate valesti).
+import static cma.instruction.CMaBasicInstruction.Code.*;
+import static cma.instruction.CMaIntInstruction.Code.*;
+import static cma.instruction.CMaLabelInstruction.Code.*;
 
 public class CMaDemo {
 
@@ -25,7 +23,7 @@ public class CMaDemo {
 
         CMaProgramWriter pw = new CMaProgramWriter();
 
-        // while (i <= 0)
+        // while (i <= n)
         pw.visit(_while);
         pw.visit(LOADA, 1);
         pw.visit(LOADA, 0);
@@ -41,6 +39,7 @@ public class CMaDemo {
 
         // i = i + 1;
         pw.visit(LOADA, 1);
+        //pw.visit(LOADC, 0);
         pw.visit(LOADC, 1);
         pw.visit(ADD);
         pw.visit(STOREA, 1);
@@ -56,7 +55,5 @@ public class CMaDemo {
         // Võime ka programmi käivitada ja saame tulemuseks uue magasini seisundi
         CMaStack finalStack = CMaInterpreter.run(program, initialStack);
         System.out.println(finalStack);
-
     }
-
 }
