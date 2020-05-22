@@ -23,6 +23,7 @@ public class CMaStack {
         this(stack.data);
     }
 
+    // TODO: 22.05.20 võimalda int...
     public CMaStack(Integer... data) {
         this(Arrays.asList(data));
     }
