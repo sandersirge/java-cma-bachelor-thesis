@@ -9,7 +9,7 @@ public class CMaLabelInstruction extends CMaInstruction<CMaLabelInstruction.Code
         /** hüppa labelile */
         JUMP,
 
-        /** hüppa labelile kui stackipeale väärtus on 0 */
+        /** hüppa labelile kui stackipealne väärtus on 0 */
         JUMPZ,
         //@formatter:on
     }
