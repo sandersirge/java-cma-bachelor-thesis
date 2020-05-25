@@ -3,10 +3,18 @@ package cma.instruction;
 public class CMaIntInstruction extends CMaInstruction<CMaIntInstruction.Code> {
 
     public enum Code {
-        LOADC,  // lisa stackile konstant
-        LOADA,  // loe väärtus indeksilt
-        STOREA, // salvesta väärtus indeksile
-    };
+        //@formatter:off
+        /** lisa stackile konstant */
+        LOADC,
+
+        /** loe väärtus indeksilt */
+        LOADA,
+
+        /** salvesta väärtus indeksile */
+        STOREA,
+        //@formatter:on
+    }
+
 
     private final int arg;
 
