@@ -15,7 +15,6 @@ public class CMaIntInstruction extends CMaInstruction<CMaIntInstruction.Code> {
         //@formatter:on
     }
 
-
     private final int arg;
 
     public CMaIntInstruction(Code code, int arg) {

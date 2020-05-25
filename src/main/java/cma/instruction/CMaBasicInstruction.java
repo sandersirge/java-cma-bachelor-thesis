@@ -6,29 +6,37 @@ public class CMaBasicInstruction extends CMaInstruction<CMaBasicInstruction.Code
         //@formatter:off
         /** binaarne + */ ADD,
         /** binaarne - */ SUB,
-        /** binaarne **/ MUL,
+        /** binaarne * */ MUL,
         /** binaarne / */ DIV,
         /** binaarne % */ MOD,
-        /** unaarne - */ NEG,
+        /** unaarne -  */ NEG,
 
         /** binaarne & */ AND,
         /** binaarne | */ OR,
         /** binaarne ^ */ XOR,
-        /** unaarne ! */ NOT,
+        /** unaarne !  */ NOT,
+
         /** binaarne == */ EQ,
         /** binaarne != */ NEQ,
-        /** binaarne < */ LE,
+        /** binaarne <  */ LE,
         /** binaarne <= */ LEQ,
-        /** binaarne > */ GE, GR,
+        /** binaarne >  */ GE, GR,
         /** binaarne >= */ GEQ,
 
-        /** eemalda stackipealne väärtus */ POP,
-        /** duubelda stackipealne väärtus */ DUP,
+        /** eemalda stackipealne väärtus */
+        POP,
 
-        /** lae väärtus stackipealselt indeksilt */ LOAD,
-        /** salvesta väärtus stackipealsele indeksile */ STORE,
+        /** duubelda stackipealne väärtus */
+        DUP,
 
-        /** seiska programm */ HALT,
+        /** lae väärtus stackipealselt indeksilt */
+        LOAD,
+
+        /** salvesta väärtus stackipealsele indeksile */
+        STORE,
+
+        /** seiska programm */
+        HALT,
         //@formatter:on
     }
 
