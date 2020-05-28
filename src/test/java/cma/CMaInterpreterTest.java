@@ -200,4 +200,20 @@ public class CMaInterpreterTest {
 
         assertInterpreted(new CMaStack(0, 43046721, 177147), new CMaStack(11, 3, 0));
     }
+
+    @Test(expected = CMaException.class)
+    public void test_missing_label() {
+        CMaLabel _label = new CMaLabel();
+        pw.visit(JUMP, _label);
+
+        CMaInterpreter.run(pw.toProgram(), new CMaStack());
+    }
+
+    @Test(expected = CMaException.class)
+    public void test_multiple_label() {
+        CMaLabel _label = new CMaLabel();
+        pw.visit(_label);
+        pw.visit(JUMP, _label);
+        pw.visit(_label);
+    }
 }

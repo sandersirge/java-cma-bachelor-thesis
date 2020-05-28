@@ -158,13 +158,21 @@ public class CMaInterpreter {
         protected void visit(CMaLabelInstruction labelInstruction) {
             switch (labelInstruction.getCode()) {
                 case JUMP:
-                    pc = program.getLabels().get(labelInstruction.getLabel());
+                    pc = getLabelTarget(labelInstruction.getLabel());
                     break;
                 case JUMPZ:
                     if (!CMaUtils.int2bool(stack.pop()))
-                        pc = program.getLabels().get(labelInstruction.getLabel());
+                        pc = getLabelTarget(labelInstruction.getLabel());
                     break;
             }
+        }
+
+        private Integer getLabelTarget(CMaLabel label) {
+            Integer target = program.getLabels().get(label);
+            if (target != null)
+                return target;
+            else
+                throw new CMaException(String.format("label '%s' not placed", label));
         }
     }
 }

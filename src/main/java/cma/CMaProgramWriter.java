@@ -32,7 +32,8 @@ public class CMaProgramWriter {
     }
 
     public void visit(CMaLabel label) {
-        labels.put(label, instructions.size());
+        if (labels.put(label, instructions.size()) != null)
+            throw new CMaException(String.format("label '%s' placed multiple times", label));
     }
 
     public CMaProgram toProgram() {
