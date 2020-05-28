@@ -167,7 +167,7 @@ public class CMaInterpreter {
             }
         }
 
-        private Integer getLabelTarget(CMaLabel label) {
+        private int getLabelTarget(CMaLabel label) {
             Integer target = program.getLabels().get(label);
             if (target != null)
                 return target;
