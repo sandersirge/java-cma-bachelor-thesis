@@ -29,6 +29,9 @@ public class CMaBasicInstruction extends CMaInstruction<CMaBasicInstruction.Code
         /** duubelda stackipealne väärtus */
         DUP,
 
+        /** vaheta stacki kaks pealmist elementi */
+        SWAP,
+
         /** lae väärtus stackipealselt indeksilt */
         LOAD,
 
