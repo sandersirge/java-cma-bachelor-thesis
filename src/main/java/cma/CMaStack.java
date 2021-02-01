@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static cma.instruction.CMaIntInstruction.Code.LOADC;
 
@@ -23,9 +24,8 @@ public class CMaStack {
         this(stack.data);
     }
 
-    // TODO: 22.05.20 võimalda int...
-    public CMaStack(Integer... data) {
-        this(Arrays.asList(data));
+    public CMaStack(int... data) {
+        this(Arrays.stream(data).boxed().collect(Collectors.toList()));
     }
 
     public void push(int value) {
