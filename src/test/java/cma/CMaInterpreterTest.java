@@ -56,7 +56,7 @@ public class CMaInterpreterTest {
     public void test2b() {
         int x = 0, y = 1;
 
-        pw.visit(LOADA, y);;
+        pw.visit(LOADA, y);
         pw.visit(LOADC, 1);
         pw.visit(SUB);
         pw.visit(STOREA, x);
