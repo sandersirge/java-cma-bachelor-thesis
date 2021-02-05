@@ -1,6 +1,5 @@
 package cma;
 
-import cma.instruction.CMaBasicInstruction;
 import cma.instruction.CMaInstruction;
 
 import java.io.BufferedWriter;
@@ -10,8 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static cma.instruction.CMaBasicInstruction.Code.HALT;
 
 public class CMaProgram {
 
@@ -33,21 +30,31 @@ public class CMaProgram {
 
     @Override
     public String toString() {
-        List<CMaInstruction<?>> printInstructions = new ArrayList<>(instructions);
-        printInstructions.add(new CMaBasicInstruction(HALT)); // add HALT in case program ends with label
-        // TODO: instead of HALT, just print (out of bounds) labels at end, Vam can handle
-
+        Set<Map.Entry<CMaLabel, Integer>> remainingLabelEntries = new HashMap<>(labels).entrySet();
         StringJoiner joiner = new StringJoiner("\n");
-        for (int i = 0; i < printInstructions.size(); i++) {
-            CMaInstruction<?> instruction = printInstructions.get(i);
+
+        for (int i = 0; i < instructions.size(); i++) {
+            CMaInstruction<?> instruction = instructions.get(i);
             StringBuilder builder = new StringBuilder();
-            for (Map.Entry<CMaLabel, Integer> labelEntry : labels.entrySet()) {
-                if (labelEntry.getValue() == i)
+            for (Map.Entry<CMaLabel, Integer> labelEntry : remainingLabelEntries) {
+                if (labelEntry.getValue() == i) {
                     builder.append(labelEntry.getKey()).append(": ");
+                    remainingLabelEntries.remove(labelEntry);
+                }
             }
             builder.append(instruction.toString());
             joiner.add(builder.toString());
         }
+
+        if (!remainingLabelEntries.isEmpty()) {
+            // print remaining (out of bounds) labels at end, Vam can handle
+            StringBuilder builder = new StringBuilder();
+            for (Map.Entry<CMaLabel, Integer> labelEntry : remainingLabelEntries) {
+                builder.append(labelEntry.getKey()).append(": ");
+            }
+            joiner.add(builder.toString());
+        }
+
         return joiner.toString();
     }
 
@@ -71,6 +78,7 @@ public class CMaProgram {
     }
 
     public void toFile(String filename, CMaStack initialStack) throws IOException {
+        // TODO: 05.02.21 Files.writeString?
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(filename), StandardCharsets.UTF_8)) {
             writer.write(toString(initialStack));
         }
