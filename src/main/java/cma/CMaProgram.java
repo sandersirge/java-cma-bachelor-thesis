@@ -78,9 +78,6 @@ public class CMaProgram {
     }
 
     public void toFile(String filename, CMaStack initialStack) throws IOException {
-        // TODO: 05.02.21 Files.writeString?
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(filename), StandardCharsets.UTF_8)) {
-            writer.write(toString(initialStack));
-        }
+        Files.writeString(Paths.get(filename), toString(initialStack));
     }
 }
