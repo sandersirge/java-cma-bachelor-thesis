@@ -30,7 +30,7 @@ public class CMaBasicInstruction extends CMaInstruction<CMaBasicInstruction.Code
         DUP,
 
         /** vaheta stacki kaks pealmist elementi */
-        SWAP,
+        SWAP, // TODO: 05.02.21 eemalda, sest ebastandardne (Vam ei toeta)?
 
         /** lae väärtus stackipealselt indeksilt */
         LOAD,
