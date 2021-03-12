@@ -3,6 +3,7 @@ package cma;
 // DO NOT UPLOAD: courses lehel demo
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
 // Impordime vajalike käske. Nad on erinevates klassides, sest nad vajavad
 // erinev arv argumente (kompilaator hoiatab kui kasutate valesti).
@@ -50,7 +51,7 @@ public class CMaDemo {
 
         // Nüüd loome programmi ja kirjutame faili
         CMaProgram program = pw.toProgram();
-        program.toFile("demo.cma", initialStack);
+        program.toFile(Paths.get("cmas", "demo.cma"), initialStack);
 
         // Võime ka programmi käivitada ja saame tulemuseks uue magasini seisundi
         CMaStack finalStack = CMaInterpreter.run(program, initialStack);

@@ -6,6 +6,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,10 +37,11 @@ public class CMaProgram {
         for (int i = 0; i < instructions.size(); i++) {
             CMaInstruction<?> instruction = instructions.get(i);
             StringBuilder builder = new StringBuilder();
-            for (Map.Entry<CMaLabel, Integer> labelEntry : remainingLabelEntries) {
+            for (Iterator<Map.Entry<CMaLabel, Integer>> iterator = remainingLabelEntries.iterator(); iterator.hasNext(); ) {
+                Map.Entry<CMaLabel, Integer> labelEntry = iterator.next();
                 if (labelEntry.getValue() == i) {
                     builder.append(labelEntry.getKey()).append(": ");
-                    remainingLabelEntries.remove(labelEntry);
+                    iterator.remove();
                 }
             }
             builder.append(instruction.toString());
@@ -77,7 +79,8 @@ public class CMaProgram {
         return initialStack.toLoadProgram().append(this).toString();
     }
 
-    public void toFile(String filename, CMaStack initialStack) throws IOException {
-        Files.writeString(Paths.get(filename), toString(initialStack));
+    public void toFile(Path path, CMaStack initialStack) throws IOException {
+        Files.createDirectories(path.toAbsolutePath().getParent());
+        Files.writeString(path, toString(initialStack));
     }
 }
