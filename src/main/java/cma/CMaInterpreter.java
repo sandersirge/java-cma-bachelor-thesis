@@ -60,7 +60,6 @@ public class CMaInterpreter {
                 case GE:
                 case GR:
                 case GEQ:
-                case SWAP:
                     rhs = stack.pop();
                     lhs = stack.pop();
                     switch (basicInstruction.getCode()) {
@@ -106,10 +105,6 @@ public class CMaInterpreter {
                             break;
                         case GEQ:
                             stack.push(CMaUtils.bool2int(lhs >= rhs));
-                            break;
-                        case SWAP:
-                            stack.push(rhs);
-                            stack.push(lhs);
                             break;
                     }
                     break;
