@@ -84,6 +84,7 @@ public class CMaProgram {
         Files.writeString(path, toString(initialStack));
     }
 
+    // TODO: 31.05.22 eraldi klassi parser
     public static CMaProgram fromFile(Path path) throws IOException {
         Map<String, CMaLabel> labelNames = new HashMap<>();
         List<String> lines = Files.readAllLines(path);
