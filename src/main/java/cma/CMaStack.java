@@ -33,12 +33,12 @@ public class CMaStack {
     }
 
     public int peek() {
-        return data.get(data.size() - 1);
+        return data.getLast();
     }
 
     public int pop() {
         int value = peek();
-        data.remove(data.size() - 1);
+        data.removeLast();
         return value;
     }
 
