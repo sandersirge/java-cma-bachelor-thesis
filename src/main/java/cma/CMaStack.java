@@ -50,6 +50,10 @@ public class CMaStack {
         return data.get(index);
     }
 
+    public int size() {
+        return data.size();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
