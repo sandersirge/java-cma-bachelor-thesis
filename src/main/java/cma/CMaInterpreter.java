@@ -143,7 +143,7 @@ public class CMaInterpreter {
             if (target != null)
                 return target;
             else
-                throw new CMaException(String.format("label '%s' not placed", label));
+                throw new CMaException("label '%s' not placed".formatted(label));
         }
     }
 }
