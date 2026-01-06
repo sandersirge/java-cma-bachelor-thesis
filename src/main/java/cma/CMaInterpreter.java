@@ -44,7 +44,7 @@ public class CMaInterpreter {
         @Override
         protected void visit(CMaBasicInstruction basicInstruction) {
             int arg, lhs, rhs;
-            switch (basicInstruction.getCode()) {
+            switch (basicInstruction.code()) {
                 case ADD:
                 case SUB:
                 case MUL:
@@ -62,7 +62,7 @@ public class CMaInterpreter {
                 case GEQ:
                     rhs = stack.pop();
                     lhs = stack.pop();
-                    switch (basicInstruction.getCode()) {
+                    switch (basicInstruction.code()) {
                         case ADD -> stack.push(lhs + rhs);
                         case SUB -> stack.push(lhs - rhs);
                         case MUL -> stack.push(lhs * rhs);
@@ -110,16 +110,16 @@ public class CMaInterpreter {
 
         @Override
         protected void visit(CMaIntInstruction intInstruction) {
-            switch (intInstruction.getCode()) {
+            switch (intInstruction.code()) {
                 case LOADC:
-                    stack.push(intInstruction.getArg());
+                    stack.push(intInstruction.arg());
                     break;
                 case LOADA:
-                    visit(new CMaIntInstruction(LOADC, intInstruction.getArg()));
+                    visit(new CMaIntInstruction(LOADC, intInstruction.arg()));
                     visit(new CMaBasicInstruction(LOAD));
                     break;
                 case STOREA:
-                    visit(new CMaIntInstruction(LOADC, intInstruction.getArg()));
+                    visit(new CMaIntInstruction(LOADC, intInstruction.arg()));
                     visit(new CMaBasicInstruction(STORE));
                     break;
             }
@@ -127,13 +127,13 @@ public class CMaInterpreter {
 
         @Override
         protected void visit(CMaLabelInstruction labelInstruction) {
-            switch (labelInstruction.getCode()) {
+            switch (labelInstruction.code()) {
                 case JUMP:
-                    pc = getLabelTarget(labelInstruction.getLabel());
+                    pc = getLabelTarget(labelInstruction.label());
                     break;
                 case JUMPZ:
                     if (!CMaUtils.int2bool(stack.pop()))
-                        pc = getLabelTarget(labelInstruction.getLabel());
+                        pc = getLabelTarget(labelInstruction.label());
                     break;
             }
         }

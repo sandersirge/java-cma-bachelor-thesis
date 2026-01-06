@@ -1,19 +1,11 @@
 package cma.instruction;
 
-public abstract class CMaInstruction<Code> {
+public sealed interface CMaInstruction<Code> permits CMaBasicInstruction, CMaIntInstruction, CMaLabelInstruction {
 
-    protected final Code code;
+    Code code();
 
-    protected CMaInstruction(Code code) {
-        this.code = code;
-    }
-
-    public Code getCode() {
-        return code;
-    }
-
-    public abstract void accept(CMaInstructionVisitor visitor);
+    void accept(CMaInstructionVisitor visitor);
 
     @Override
-    public abstract String toString();
+    String toString();
 }
