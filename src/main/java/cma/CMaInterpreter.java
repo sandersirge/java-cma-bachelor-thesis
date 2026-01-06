@@ -40,21 +40,7 @@ public class CMaInterpreter {
             case CMaBasicInstruction(CMaBasicInstruction.Code code) -> {
                 int arg, lhs, rhs;
                 switch (code) {
-                    case ADD:
-                    case SUB:
-                    case MUL:
-                    case DIV:
-                    case MOD:
-                    case AND:
-                    case OR:
-                    case XOR:
-                    case EQ:
-                    case NEQ:
-                    case LE:
-                    case LEQ:
-                    case GE:
-                    case GR:
-                    case GEQ:
+                    case ADD, SUB, MUL, DIV, MOD, AND, OR, XOR, EQ, NEQ, LE, LEQ, GE, GR, GEQ -> {
                         rhs = stack.pop();
                         lhs = stack.pop();
                         switch (code) {
@@ -73,59 +59,49 @@ public class CMaInterpreter {
                             case GE, GR -> stack.push(CMaUtils.bool2int(lhs > rhs));
                             case GEQ -> stack.push(CMaUtils.bool2int(lhs >= rhs));
                         }
-                        break;
-                    case NEG:
+                    }
+                    case NEG -> {
                         arg = stack.pop();
                         stack.push(-arg);
-                        break;
-                    case NOT:
+                    }
+                    case NOT -> {
                         arg = stack.pop();
                         stack.push(CMaUtils.bool2int(!CMaUtils.int2bool(arg)));
-                        break;
-                    case POP:
-                        stack.pop();
-                        break;
-                    case DUP:
-                        stack.push(stack.peek());
-                        break;
-                    case LOAD:
+                    }
+                    case POP -> stack.pop();
+                    case DUP -> stack.push(stack.peek());
+                    case LOAD -> {
                         arg = stack.pop();
                         stack.push(stack.get(arg));
-                        break;
-                    case STORE:
+                    }
+                    case STORE -> {
                         arg = stack.pop();
                         stack.set(arg, stack.peek());
-                        break;
-                    case HALT:
-                        pc = -1; // out of range pc halts
-                        break;
+                    }
+                    case HALT -> pc = -1; // out of range pc halts
                 }
             }
             case CMaIntInstruction(CMaIntInstruction.Code code, int arg) -> {
                 switch (code) {
-                    case LOADC:
-                        stack.push(arg);
-                        break;
-                    case LOADA:
+                    case LOADC -> stack.push(arg);
+                    case LOADA -> {
                         execute(new CMaIntInstruction(LOADC, arg));
                         execute(new CMaBasicInstruction(LOAD));
-                        break;
-                    case STOREA:
+                    }
+                    case STOREA -> {
                         execute(new CMaIntInstruction(LOADC, arg));
                         execute(new CMaBasicInstruction(STORE));
-                        break;
+                    }
                 }
 
             }
             case CMaLabelInstruction(CMaLabelInstruction.Code code, CMaLabel label) -> {
                 switch (code) {
-                    case JUMP:
-                        pc = getLabelTarget(label);
-                        break;
-                    case JUMPZ:
+                    case JUMP -> pc = getLabelTarget(label);
+                    case JUMPZ -> {
                         if (!CMaUtils.int2bool(stack.pop()))
                             pc = getLabelTarget(label);
-                        break;
+                    }
                 }
             }
         }
