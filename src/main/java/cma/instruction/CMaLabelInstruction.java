@@ -15,11 +15,6 @@ public record CMaLabelInstruction(Code code, CMaLabel label) implements CMaInstr
     }
 
     @Override
-    public void accept(CMaInstructionVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
     public String toString() {
         return code.name() + " " + label;
     }

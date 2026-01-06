@@ -16,11 +16,6 @@ public record CMaIntInstruction(Code code, int arg) implements CMaInstruction<CM
     }
 
     @Override
-    public void accept(CMaInstructionVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
     public String toString() {
         return code.name() + " " + arg;
     }

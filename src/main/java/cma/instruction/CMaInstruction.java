@@ -4,8 +4,6 @@ public sealed interface CMaInstruction<Code> permits CMaBasicInstruction, CMaInt
 
     Code code();
 
-    void accept(CMaInstructionVisitor visitor);
-
     @Override
     String toString();
 }
