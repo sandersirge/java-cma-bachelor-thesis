@@ -28,8 +28,8 @@ public class CMaInterpreter {
     }
 
     private CMaStack execute() {
-        while (0 <= pc && pc < program.getInstructions().size()) {
-            CMaInstruction<?> instruction = program.getInstructions().get(pc);
+        while (0 <= pc && pc < program.instructions().size()) {
+            CMaInstruction<?> instruction = program.instructions().get(pc);
             pc++;
             execute(instruction);
         }
@@ -139,7 +139,7 @@ public class CMaInterpreter {
         }
 
         private int getLabelTarget(CMaLabel label) {
-            Integer target = program.getLabels().get(label);
+            Integer target = program.labels().get(label);
             if (target != null)
                 return target;
             else
