@@ -1,10 +1,10 @@
-package cma;
+package ee.ut.cs.sws.cma;
 
 // DO NOT UPLOAD: pole millekski vaja?
 
-import cma.instruction.CMaBasicInstruction;
-import cma.instruction.CMaIntInstruction;
-import cma.instruction.CMaLabelInstruction;
+import ee.ut.cs.sws.cma.instruction.CMaBasicInstruction;
+import ee.ut.cs.sws.cma.instruction.CMaIntInstruction;
+import ee.ut.cs.sws.cma.instruction.CMaLabelInstruction;
 
 import java.io.IOException;
 import java.nio.file.Files;

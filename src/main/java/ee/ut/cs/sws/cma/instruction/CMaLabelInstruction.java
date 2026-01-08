@@ -1,6 +1,6 @@
-package cma.instruction;
+package ee.ut.cs.sws.cma.instruction;
 
-import cma.CMaLabel;
+import ee.ut.cs.sws.cma.CMaLabel;
 
 public record CMaLabelInstruction(Code code, CMaLabel label) implements CMaInstruction<CMaLabelInstruction.Code> {
 

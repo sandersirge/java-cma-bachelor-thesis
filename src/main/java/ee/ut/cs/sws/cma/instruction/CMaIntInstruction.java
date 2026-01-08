@@ -1,4 +1,4 @@
-package cma.instruction;
+package ee.ut.cs.sws.cma.instruction;
 
 public record CMaIntInstruction(Code code, int arg) implements CMaInstruction<CMaIntInstruction.Code> {
 

@@ -1,4 +1,4 @@
-package cma;
+package ee.ut.cs.sws.cma;
 
 // DO NOT UPLOAD: courses lehel demo
 
@@ -7,9 +7,9 @@ import java.nio.file.Paths;
 
 // Impordime vajalike käske. Nad on erinevates klassides, sest nad vajavad
 // erinev arv argumente (kompilaator hoiatab kui kasutate valesti).
-import static cma.instruction.CMaBasicInstruction.Code.*;
-import static cma.instruction.CMaIntInstruction.Code.*;
-import static cma.instruction.CMaLabelInstruction.Code.*;
+import static ee.ut.cs.sws.cma.instruction.CMaBasicInstruction.Code.*;
+import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.*;
+import static ee.ut.cs.sws.cma.instruction.CMaLabelInstruction.Code.*;
 
 public class CMaDemo {
 

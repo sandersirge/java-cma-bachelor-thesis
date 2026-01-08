@@ -1,11 +1,11 @@
-package cma;
+package ee.ut.cs.sws.cma;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static cma.instruction.CMaIntInstruction.Code.LOADC;
+import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.LOADC;
 
 public class CMaStack {
 

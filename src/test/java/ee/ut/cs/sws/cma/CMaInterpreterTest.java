@@ -1,13 +1,13 @@
-package cma;
+package ee.ut.cs.sws.cma;
 
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import static cma.instruction.CMaBasicInstruction.Code.*;
-import static cma.instruction.CMaIntInstruction.Code.*;
-import static cma.instruction.CMaLabelInstruction.Code.*;
+import static ee.ut.cs.sws.cma.instruction.CMaBasicInstruction.Code.*;
+import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.*;
+import static ee.ut.cs.sws.cma.instruction.CMaLabelInstruction.Code.*;
 import static org.junit.Assert.*;
 
 @FixMethodOrder(MethodSorters.JVM)

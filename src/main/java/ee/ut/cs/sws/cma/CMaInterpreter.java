@@ -1,10 +1,10 @@
-package cma;
+package ee.ut.cs.sws.cma;
 
-import cma.instruction.*;
+import ee.ut.cs.sws.cma.instruction.*;
 
-import static cma.instruction.CMaBasicInstruction.Code.LOAD;
-import static cma.instruction.CMaBasicInstruction.Code.STORE;
-import static cma.instruction.CMaIntInstruction.Code.LOADC;
+import static ee.ut.cs.sws.cma.instruction.CMaBasicInstruction.Code.LOAD;
+import static ee.ut.cs.sws.cma.instruction.CMaBasicInstruction.Code.STORE;
+import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.LOADC;
 
 public class CMaInterpreter {
 

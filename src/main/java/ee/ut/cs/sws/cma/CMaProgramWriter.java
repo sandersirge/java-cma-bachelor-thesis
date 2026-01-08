@@ -1,9 +1,9 @@
-package cma;
+package ee.ut.cs.sws.cma;
 
-import cma.instruction.CMaBasicInstruction;
-import cma.instruction.CMaInstruction;
-import cma.instruction.CMaIntInstruction;
-import cma.instruction.CMaLabelInstruction;
+import ee.ut.cs.sws.cma.instruction.CMaBasicInstruction;
+import ee.ut.cs.sws.cma.instruction.CMaInstruction;
+import ee.ut.cs.sws.cma.instruction.CMaIntInstruction;
+import ee.ut.cs.sws.cma.instruction.CMaLabelInstruction;
 
 import java.util.ArrayList;
 import java.util.HashMap;

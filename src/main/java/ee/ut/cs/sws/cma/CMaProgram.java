@@ -1,6 +1,6 @@
-package cma;
+package ee.ut.cs.sws.cma;
 
-import cma.instruction.CMaInstruction;
+import ee.ut.cs.sws.cma.instruction.CMaInstruction;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,4 +1,4 @@
-package cma;
+package ee.ut.cs.sws.cma;
 
 public final class CMaUtils {
     private CMaUtils() {
