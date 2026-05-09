@@ -24,6 +24,9 @@ public record CMaIntInstruction(Code code, int arg) implements CMaInstruction<CM
 
         /** salvesta väärtus FP-suhtelisele indeksile */
         STORER,
+
+        /** sea piirviit EP = SP + m, kontrolli EP >= HP */
+        ENTER,
         //@formatter:on
     }
 

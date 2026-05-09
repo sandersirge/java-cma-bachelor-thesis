@@ -287,4 +287,44 @@ public class CMaInterpreterTest {
         // Stack pärast: [42, 0, 0, 4] — parameeter, salvestatud EP, FP, tagastusaadress
         assertInterpreted(new CMaStack(42, 0, 0, 4));
     }
+
+    // Funktsioonikutsed: Samm 5 — ENTER käsu testimine
+
+    @Test
+    public void test_enter() {
+        // stack: [10, 20], ENTER 5 → EP = (2-1) + 5 = 6
+        // MARK → push EP(6), push FP(0) → stack: [10, 20, 6, 0]
+        // Kontrollime EP väärtust läbi MARK käsu
+        pw.visit(ENTER, 5);
+        pw.visit(MARK);
+
+        assertInterpreted(new CMaStack(10, 20, 6, 0), new CMaStack(10, 20));
+    }
+
+    @Test
+    public void test_enter_in_function() {
+        // MARK/CALL/ENTER tsükkel: funktsioon kutsutakse ja ENTER seab EP
+        // LOADC 42 → [42]
+        // MARK     → [42, 0, 0]
+        // LOADC 5  → [42, 0, 0, 5]    (funktsiooni aadress, _func label indeksil 5)
+        // CALL     → FP=3, PC=5, S[3]=4 → [42, 0, 0, 4]
+        // HALT     (tagastuspunkt, indeks 4)
+        // _func (indeks 5): ENTER 3 → EP = (4-1) + 3 = 6
+        // MARK → push EP(6), push FP(3) → [42, 0, 0, 4, 6, 3]
+        // HALT
+        CMaLabel _func = new CMaLabel();
+
+        pw.visit(LOADC, 42);      // 0: parameeter
+        pw.visit(MARK);           // 1: push EP(0), push FP(0)
+        pw.visit(LOADC, 5);       // 2: funktsiooni aadress (indeks 5)
+        pw.visit(CALL);           // 3: FP=3, PC=5, S[3]=4
+        pw.visit(HALT);           // 4: tagastuspunkt
+        pw.visit(_func);          // label indeksil 5
+        pw.visit(ENTER, 3);       // 5: EP = (4-1) + 3 = 6
+        pw.visit(MARK);           // 6: push EP(6), push FP(3)
+        pw.visit(HALT);           // 7: funktsioon peatub
+
+        // Stack pärast: [42, 0, 0, 4, 6, 3]
+        assertInterpreted(new CMaStack(42, 0, 0, 4, 6, 3));
+    }
 }

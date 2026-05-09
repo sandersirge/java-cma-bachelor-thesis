@@ -110,12 +110,20 @@ public class CMaInterpreter {
                     case ALLOC -> stack.allocate(arg);
                     case LOADRC -> stack.push(fp + arg);
                     case LOADR -> {
+                        // LOADR j = LOADRC j; LOAD
                         execute(new CMaIntInstruction(CMaIntInstruction.Code.LOADRC, arg));
                         execute(new CMaBasicInstruction(LOAD));
                     }
                     case STORER -> {
+                        // STORER j = LOADRC j; STORE
                         execute(new CMaIntInstruction(CMaIntInstruction.Code.LOADRC, arg));
                         execute(new CMaBasicInstruction(STORE));
+                    }
+                    case ENTER -> {
+                        // EP = SP + m; kui EP >= HP, siis viga
+                        ep = stack.size() - 1 + arg;
+                        if (ep >= hp)
+                            throw new CMaException("Stack Overflow: EP(%d) >= HP(%d)".formatted(ep, hp));
                     }
                 }
 
