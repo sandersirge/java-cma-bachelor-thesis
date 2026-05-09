@@ -53,6 +53,17 @@ public class CMaStack {
         return data.size();
     }
 
+    /** Kasvata stacki m nulliga algväärtustatud pesa võrra. SP += m */
+    public void allocate(int m) {
+        for (int i = 0; i < m; i++)
+            data.add(0);
+    }
+
+    /** Kärbi stack uuele suurusele. SP = newSize - 1 */
+    public void truncate(int newSize) {
+        data.subList(newSize, data.size()).clear();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)

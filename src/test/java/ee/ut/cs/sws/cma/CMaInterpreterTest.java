@@ -216,4 +216,21 @@ public class CMaInterpreterTest {
         pw.visit(JUMP, _label);
         pw.visit(_label);
     }
+
+    // Funktsioonikutsed: Samm 1 — ALLOC käsu testimine
+
+    @Test
+    public void test_alloc_empty() {
+        pw.visit(ALLOC, 3);
+
+        assertInterpreted(new CMaStack(0, 0, 0));
+    }
+
+    @Test
+    public void test_alloc_after_loadc() {
+        pw.visit(LOADC, 5);
+        pw.visit(ALLOC, 2);
+
+        assertInterpreted(new CMaStack(5, 0, 0));
+    }
 }

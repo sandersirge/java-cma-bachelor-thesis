@@ -12,6 +12,9 @@ public record CMaIntInstruction(Code code, int arg) implements CMaInstruction<CM
 
         /** salvesta väärtus indeksile */
         STOREA,
+
+        /** eralda m nulliga algväärtustatud pesa */
+        ALLOC,
         //@formatter:on
     }
 

@@ -92,6 +92,7 @@ public class CMaInterpreter {
                         execute(new CMaIntInstruction(LOADC, arg));
                         execute(new CMaBasicInstruction(STORE));
                     }
+                    case ALLOC -> stack.allocate(arg);
                 }
 
             }
