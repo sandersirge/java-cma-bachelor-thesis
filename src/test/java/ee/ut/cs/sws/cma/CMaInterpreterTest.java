@@ -262,4 +262,29 @@ public class CMaInterpreterTest {
 
         assertInterpreted(new CMaStack(10, 99, 30, 99), new CMaStack(10, 20, 30));
     }
+
+    // Funktsioonikutsed: Samm 4 — MARK ja CALL käskude testimine
+
+    @Test
+    public void test_mark_call() {
+        // Stack enne: []
+        // LOADC 42  → [42]                    (parameeter)
+        // MARK      → [42, 0, 0]              (push EP=0, push FP=0)
+        // LOADC 5   → [42, 0, 0, 5]           (funktsiooni aadress)
+        // CALL      → FP=3, PC=5, S[3]=4      → stack: [42, 0, 0, 4]
+        // indeks 4: HALT (tagastuspunkt, siia ei jõua)
+        // indeks 5: HALT (funktsioon peatub kohe)
+        CMaLabel _func = new CMaLabel();
+
+        pw.visit(LOADC, 42);      // 0: parameeter
+        pw.visit(MARK);           // 1: push EP(0), push FP(0)
+        pw.visit(LOADC, 5);       // 2: funktsiooni aadress (indeks 5)
+        pw.visit(CALL);           // 3: FP=3, PC=5, S[3]=4 (tagastusaadress)
+        pw.visit(HALT);           // 4: tagastuspunkt
+        pw.visit(_func);          // 5: funktsiooni algus
+        pw.visit(HALT);           // 5: funktsioon peatub kohe
+
+        // Stack pärast: [42, 0, 0, 4] — parameeter, salvestatud EP, FP, tagastusaadress
+        assertInterpreted(new CMaStack(42, 0, 0, 4));
+    }
 }

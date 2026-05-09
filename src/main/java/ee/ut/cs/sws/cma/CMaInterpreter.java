@@ -82,6 +82,18 @@ public class CMaInterpreter {
                         stack.set(arg, stack.peek());
                     }
                     case HALT -> pc = -1; // out of range pc halts
+                    case MARK -> {
+                        // S[SP+1] = EP; S[SP+2] = FP; SP += 2
+                        stack.push(ep);
+                        stack.push(fp);
+                    }
+                    case CALL -> {
+                        // FP = SP; tmp = PC; PC = S[FP]; S[FP] = tmp
+                        fp = stack.size() - 1;  // SP = stack.size() - 1
+                        int tmp = pc;
+                        pc = stack.get(fp);
+                        stack.set(fp, tmp);
+                    }
                 }
             }
             case CMaIntInstruction(CMaIntInstruction.Code code, int arg) -> {
