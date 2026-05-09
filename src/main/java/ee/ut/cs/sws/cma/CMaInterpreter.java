@@ -96,6 +96,15 @@ public class CMaInterpreter {
                         execute(new CMaBasicInstruction(STORE));
                     }
                     case ALLOC -> stack.allocate(arg);
+                    case LOADRC -> stack.push(fp + arg);
+                    case LOADR -> {
+                        execute(new CMaIntInstruction(CMaIntInstruction.Code.LOADRC, arg));
+                        execute(new CMaBasicInstruction(LOAD));
+                    }
+                    case STORER -> {
+                        execute(new CMaIntInstruction(CMaIntInstruction.Code.LOADRC, arg));
+                        execute(new CMaBasicInstruction(STORE));
+                    }
                 }
 
             }

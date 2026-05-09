@@ -15,6 +15,15 @@ public record CMaIntInstruction(Code code, int arg) implements CMaInstruction<CM
 
         /** eralda m nulliga algväärtustatud pesa */
         ALLOC,
+
+        /** lisa stackile FP + j (suhteline aadress) */
+        LOADRC,
+
+        /** loe väärtus FP-suhteliselt indeksilt */
+        LOADR,
+
+        /** salvesta väärtus FP-suhtelisele indeksile */
+        STORER,
         //@formatter:on
     }
 
