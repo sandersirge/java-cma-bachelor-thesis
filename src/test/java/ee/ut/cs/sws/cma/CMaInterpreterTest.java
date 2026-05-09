@@ -233,4 +233,33 @@ public class CMaInterpreterTest {
 
         assertInterpreted(new CMaStack(5, 0, 0));
     }
+
+    // Funktsioonikutsed: Samm 3 — LOADRC, LOADR ja STORER käskude testimine
+
+    @Test
+    public void test_loadrc() {
+        // fp = 0 (vaikeväärtus), LOADRC 3 → push(0 + 3) = 3
+        pw.visit(LOADRC, 3);
+
+        assertInterpreted(new CMaStack(3));
+    }
+
+    @Test
+    public void test_loadr() {
+        // stack: [10, 20, 30], fp = 0 (vaikeväärtus)
+        // LOADR 2 → push(fp + 2) = push(2), LOAD → push(stack[2]) = 30
+        pw.visit(LOADR, 2);
+
+        assertInterpreted(new CMaStack(10, 20, 30, 30), new CMaStack(10, 20, 30));
+    }
+
+    @Test
+    public void test_storer() {
+        // stack: [10, 20, 30], fp = 0 (vaikeväärtus)
+        // LOADC 99; STORER 1 → push(fp + 1) = push(1), STORE → stack[1] = 99
+        pw.visit(LOADC, 99);
+        pw.visit(STORER, 1);
+
+        assertInterpreted(new CMaStack(10, 99, 30, 99), new CMaStack(10, 20, 30));
+    }
 }
