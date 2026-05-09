@@ -125,6 +125,18 @@ public class CMaInterpreter {
                         if (ep >= hp)
                             throw new CMaException("Stack Overflow: EP(%d) >= HP(%d)".formatted(ep, hp));
                     }
+                    case RETURN -> {
+                        // PC = S[FP]; EP = S[FP-2]; kontrolli EP >= HP;
+                        // SP = FP - q (truncate(FP - q + 1)); FP = S[FP-1]
+                        pc = stack.get(fp);           // taasta tagastusaadress
+                        ep = stack.get(fp - 2);       // taasta vana EP
+                        if (ep >= hp)
+                            throw new CMaException("Stack Overflow: EP(%d) >= HP(%d)".formatted(ep, hp));
+                        int newSp = fp - arg;         // SP = FP - q
+                        int newFp = stack.get(fp - 1); // taasta vana FP
+                        stack.truncate(newSp + 1);    // kärbi stack: size = SP + 1
+                        fp = newFp;
+                    }
                 }
 
             }

@@ -327,4 +327,73 @@ public class CMaInterpreterTest {
         // Stack pärast: [42, 0, 0, 4, 6, 3]
         assertInterpreted(new CMaStack(42, 0, 0, 4, 6, 3));
     }
+
+    // Funktsioonikutsed: Samm 6 — RETURN käsu testimine
+
+    @Test
+    public void test_call_return() {
+        // Täielik kutse-tagastus tsükkel:
+        // Peaprogramm kutsub funktsiooni, mis kohe tagastab.
+        //
+        // 0: LOADC 42      → [42]                    (parameeter)
+        // 1: MARK           → [42, 0, 0]              (push EP=0, FP=0)
+        // 2: LOADC 6        → [42, 0, 0, 6]           (funktsiooni aadress)
+        // 3: CALL           → FP=3, PC=6, S[3]=4      → [42, 0, 0, 4]
+        // 4: HALT           (tagastuspunkt)
+        //
+        // _func (indeks 5):
+        // 5: ENTER 0        → EP = (4-1)+0 = 3
+        // 6: RETURN 3       → PC=S[3]=4, EP=S[1]=0, FP=S[2]=0
+        //                     SP = 3-3 = 0, truncate(1) → [42]
+        //                     PC=4 → jõuab HALT-i
+        CMaLabel _func = new CMaLabel();
+
+        pw.visit(LOADC, 42);      // 0: parameeter
+        pw.visit(MARK);           // 1: push EP(0), push FP(0)
+        pw.visit(LOADC, 5);       // 2: funktsiooni aadress
+        pw.visit(CALL);           // 3: FP=3, PC=5, S[3]=4
+        pw.visit(HALT);           // 4: tagastuspunkt
+        pw.visit(_func);          // label indeksil 5
+        pw.visit(ENTER, 0);       // 5: EP = 3
+        pw.visit(RETURN, 3);      // 6: taasta ja kärbi, q=3 (EP+FP+PC)
+
+        // Pärast RETURN: stack = [42], PC=4 → HALT
+        assertInterpreted(new CMaStack(42));
+    }
+
+    @Test
+    public void test_call_return_with_locals() {
+        // Funktsioon eraldab lokaalse muutuja, kirjutab sinna ja tagastab.
+        //
+        // 0: LOADC 10       → [10]                    (parameeter)
+        // 1: MARK           → [10, 0, 0]
+        // 2: LOADC 5        → [10, 0, 0, 5]
+        // 3: CALL           → FP=3, PC=5, S[3]=4      → [10, 0, 0, 4]
+        // 4: HALT
+        //
+        // _func (indeks 5):
+        // 5: ENTER 1        → EP = (4-1)+1 = 4
+        // 6: ALLOC 1        → [10, 0, 0, 4, 0]        (lokaalne muutuja indeksil 4)
+        // 7: LOADC 99
+        // 8: STORER 1       → stack[FP+1]=stack[4]=99  → [10, 0, 0, 4, 99, 99]
+        // 9: POP            → [10, 0, 0, 4, 99]
+        // 10: RETURN 3      → PC=4, EP=0, SP=3-3=0, FP=0, truncate(1) → [10]
+        CMaLabel _func = new CMaLabel();
+
+        pw.visit(LOADC, 10);      // 0: parameeter
+        pw.visit(MARK);           // 1
+        pw.visit(LOADC, 5);       // 2: funktsiooni aadress
+        pw.visit(CALL);           // 3
+        pw.visit(HALT);           // 4
+        pw.visit(_func);          // label indeksil 5
+        pw.visit(ENTER, 1);       // 5
+        pw.visit(ALLOC, 1);       // 6: lokaalne muutuja
+        pw.visit(LOADC, 99);      // 7
+        pw.visit(STORER, 1);      // 8: kirjuta lokaalsesse muutujasse
+        pw.visit(POP);            // 9
+        pw.visit(RETURN, 3);      // 10: tagasta, q=3
+
+        // Pärast RETURN: stack = [10], PC=4 → HALT
+        assertInterpreted(new CMaStack(10));
+    }
 }

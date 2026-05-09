@@ -27,6 +27,9 @@ public record CMaIntInstruction(Code code, int arg) implements CMaInstruction<CM
 
         /** sea piirviit EP = SP + m, kontrolli EP >= HP */
         ENTER,
+
+        /** taasta registrid ja puhasta täitmisraam, q = org. pesade + parameetrite arv */
+        RETURN,
         //@formatter:on
     }
 
