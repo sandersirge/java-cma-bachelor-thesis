@@ -3,6 +3,7 @@ package ee.ut.cs.sws.cma;
 import ee.ut.cs.sws.cma.instruction.CMaBasicInstruction;
 import ee.ut.cs.sws.cma.instruction.CMaInstruction;
 import ee.ut.cs.sws.cma.instruction.CMaIntInstruction;
+import ee.ut.cs.sws.cma.instruction.CMaIntIntInstruction;
 import ee.ut.cs.sws.cma.instruction.CMaLabelInstruction;
 
 import java.util.ArrayList;
@@ -25,6 +26,10 @@ public class CMaProgramWriter {
 
     public void visit(CMaIntInstruction.Code code, int arg) {
         visit(new CMaIntInstruction(code, arg));
+    }
+
+    public void visit(CMaIntIntInstruction.Code code, int arg1, int arg2) {
+        visit(new CMaIntIntInstruction(code, arg1, arg2));
     }
 
     public void visit(CMaLabelInstruction.Code code, CMaLabel label) {

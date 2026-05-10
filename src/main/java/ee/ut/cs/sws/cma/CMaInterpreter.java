@@ -140,6 +140,18 @@ public class CMaInterpreter {
                 }
 
             }
+            case CMaIntIntInstruction(CMaIntIntInstruction.Code code, int arg1, int arg2) -> {
+                switch (code) {
+                    case SLIDE -> {
+                        // SLIDE q m: kopeeri m väärtust q positsiooni allapoole, kärbi stack
+                        // Book: for i=1 to m: S[SP-q-m+i] = S[SP-m+i]; SP = SP-q
+                        int sp = stack.size() - 1;
+                        for (int i = 1; i <= arg2; i++)
+                            stack.set(sp - arg1 - arg2 + i, stack.get(sp - arg2 + i));
+                        stack.truncate(sp - arg1 + 1); // SP = SP - q, size = SP - q + 1
+                    }
+                }
+            }
             case CMaLabelInstruction(CMaLabelInstruction.Code code, CMaLabel label) -> {
                 switch (code) {
                     case JUMP -> pc = getLabelTarget(label);
