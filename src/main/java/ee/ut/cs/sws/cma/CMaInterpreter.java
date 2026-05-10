@@ -159,6 +159,10 @@ public class CMaInterpreter {
                         if (!CMaUtils.int2bool(stack.pop()))
                             pc = getLabelTarget(label);
                     }
+                    case JUMPI -> {
+                        // PC = target(label) + S[SP]; SP--
+                        pc = getLabelTarget(label) + stack.pop();
+                    }
                 }
             }
         }

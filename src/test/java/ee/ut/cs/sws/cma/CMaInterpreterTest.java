@@ -438,4 +438,90 @@ public class CMaInterpreterTest {
 
         assertInterpreted(new CMaStack(10, 20));
     }
+
+    // Funktsioonikutsed: Samm 8 — JUMPI käsu testimine
+
+    @Test
+    public void test_jumpi() {
+        // Hüppetabel: väärtus 0 → case0, väärtus 1 → case1, väärtus 2 → case2
+        // Iga case laeb oma väärtuse stackile ja peatub.
+        CMaLabel _table = new CMaLabel();
+        CMaLabel _case0 = new CMaLabel();
+        CMaLabel _case1 = new CMaLabel();
+        CMaLabel _case2 = new CMaLabel();
+
+        // Programm: LOADC index; JUMPI _table; _table: JUMP _case0; JUMP _case1; JUMP _case2
+        pw.visit(LOADC, 0);        // 0: indeks
+        pw.visit(JUMPI, _table);   // 1: PC = target(_table) + 0 = 2
+        pw.visit(_table);          // indeks 2
+        pw.visit(JUMP, _case0);    // 2: hüppa case0-le
+        pw.visit(JUMP, _case1);    // 3: hüppa case1-le
+        pw.visit(JUMP, _case2);    // 4: hüppa case2-le
+        pw.visit(_case0);
+        pw.visit(LOADC, 100);      // 5
+        pw.visit(HALT);            // 6
+        pw.visit(_case1);
+        pw.visit(LOADC, 200);      // 7
+        pw.visit(HALT);            // 8
+        pw.visit(_case2);
+        pw.visit(LOADC, 300);      // 9
+        pw.visit(HALT);            // 10
+
+        // Indeks 0 → case0 → stack: [100]
+        assertInterpreted(new CMaStack(100));
+    }
+
+    @Test
+    public void test_jumpi_index1() {
+        CMaLabel _table = new CMaLabel();
+        CMaLabel _case0 = new CMaLabel();
+        CMaLabel _case1 = new CMaLabel();
+        CMaLabel _case2 = new CMaLabel();
+
+        pw.visit(LOADC, 1);        // 0: indeks
+        pw.visit(JUMPI, _table);   // 1: PC = target(_table) + 1 = 3
+        pw.visit(_table);
+        pw.visit(JUMP, _case0);    // 2
+        pw.visit(JUMP, _case1);    // 3
+        pw.visit(JUMP, _case2);    // 4
+        pw.visit(_case0);
+        pw.visit(LOADC, 100);
+        pw.visit(HALT);
+        pw.visit(_case1);
+        pw.visit(LOADC, 200);
+        pw.visit(HALT);
+        pw.visit(_case2);
+        pw.visit(LOADC, 300);
+        pw.visit(HALT);
+
+        // Indeks 1 → case1 → stack: [200]
+        assertInterpreted(new CMaStack(200));
+    }
+
+    @Test
+    public void test_jumpi_index2() {
+        CMaLabel _table = new CMaLabel();
+        CMaLabel _case0 = new CMaLabel();
+        CMaLabel _case1 = new CMaLabel();
+        CMaLabel _case2 = new CMaLabel();
+
+        pw.visit(LOADC, 2);        // 0: indeks
+        pw.visit(JUMPI, _table);   // 1: PC = target(_table) + 2 = 4
+        pw.visit(_table);
+        pw.visit(JUMP, _case0);    // 2
+        pw.visit(JUMP, _case1);    // 3
+        pw.visit(JUMP, _case2);    // 4
+        pw.visit(_case0);
+        pw.visit(LOADC, 100);
+        pw.visit(HALT);
+        pw.visit(_case1);
+        pw.visit(LOADC, 200);
+        pw.visit(HALT);
+        pw.visit(_case2);
+        pw.visit(LOADC, 300);
+        pw.visit(HALT);
+
+        // Indeks 2 → case2 → stack: [300]
+        assertInterpreted(new CMaStack(300));
+    }
 }
