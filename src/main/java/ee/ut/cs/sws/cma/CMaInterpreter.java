@@ -128,12 +128,12 @@ public class CMaInterpreter {
                     case RETURN -> {
                         // PC = S[FP]; EP = S[FP-2]; kontrolli EP >= HP;
                         // SP = FP - q (truncate(FP - q + 1)); FP = S[FP-1]
-                        pc = stack.get(fp);           // taasta tagastusaadress
-                        ep = stack.get(fp - 2);       // taasta vana EP
+                        pc = stack.get(fp);                    // taasta tagastusaadress
+                        ep = stack.get(fp - 2);                // taasta vana EP
                         if (ep >= hp)
                             throw new CMaException("Stack Overflow: EP(%d) >= HP(%d)".formatted(ep, hp));
-                        int newSp = fp - arg;         // SP = FP - q
-                        int newFp = stack.get(fp - 1); // taasta vana FP
+                        int newSp = fp - arg;                  // SP = FP - q
+                        int newFp = stack.get(fp - 1);         // taasta vana FP
                         stack.truncate(newSp + 1);    // kärbi stack: size = SP + 1
                         fp = newFp;
                     }
@@ -143,12 +143,25 @@ public class CMaInterpreter {
             case CMaIntIntInstruction(CMaIntIntInstruction.Code code, int arg1, int arg2) -> {
                 switch (code) {
                     case SLIDE -> {
-                        // SLIDE q m: kopeeri m väärtust q positsiooni allapoole, kärbi stack
-                        // Book: for i=1 to m: S[SP-q-m+i] = S[SP-m+i]; SP = SP-q
-                        int sp = stack.size() - 1;
-                        for (int i = 1; i <= arg2; i++)
-                            stack.set(sp - arg1 - arg2 + i, stack.get(sp - arg2 + i));
-                        stack.truncate(sp - arg1 + 1); // SP = SP - q, size = SP - q + 1
+                        // SLIDE q m: nihuta m pealmist väärtust q positsiooni allapoole
+                        //   if (q > 0)
+                        //     if (m = 0) SP ← SP - q;
+                        //     else { SP ← SP-q-m; for (i←0; i<m; i++) { SP++; S[SP]←S[SP+q]; } }
+                        if (arg1 > 0) {
+                            int sp = stack.size() - 1;
+                            if (arg2 == 0) {
+                                // m = 0: lihtsalt kärbi q pesa
+                                stack.truncate(sp - arg1 + 1); // SP = SP - q, size = SP - q + 1
+                            } else {
+                                // kopeeri m väärtust q positsiooni allapoole, siis kärbi
+                                sp = sp - arg1 - arg2;
+                                for (int i = 0; i < arg2; i++) {
+                                    sp++;
+                                    stack.set(sp, stack.get(sp + arg1)); // S[SP] ← S[SP+q]
+                                }
+                                stack.truncate(sp + 1); // SP = SP - q, size = SP - q + 1
+                            }
+                        }
                     }
                 }
             }
