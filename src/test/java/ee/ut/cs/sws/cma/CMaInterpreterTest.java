@@ -7,6 +7,7 @@ import org.junit.runners.MethodSorters;
 
 import static ee.ut.cs.sws.cma.instruction.CMaBasicInstruction.Code.*;
 import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.*;
+import static ee.ut.cs.sws.cma.instruction.CMaIntIntInstruction.Code.*;
 import static ee.ut.cs.sws.cma.instruction.CMaLabelInstruction.Code.*;
 import static org.junit.Assert.*;
 
@@ -395,5 +396,46 @@ public class CMaInterpreterTest {
 
         // Pärast RETURN: stack = [10], PC=4 → HALT
         assertInterpreted(new CMaStack(10));
+    }
+
+    // Funktsioonikutsed: Samm 7 — SLIDE käsu testimine
+
+    @Test
+    public void test_slide() {
+        // stack: [10, 20, 30], SLIDE 2 1 → kopeeri 1 väärtus (30) 2 positsiooni allapoole
+        // S[SP-2-1+1] = S[SP-1+1] → S[0] = S[2] = 30 → stack: [30, 20, 30]
+        // truncate(SP-2+1) = truncate(1) → stack: [30]
+        pw.visit(LOADC, 10);
+        pw.visit(LOADC, 20);
+        pw.visit(LOADC, 30);
+        pw.visit(SLIDE, 2, 1);
+
+        assertInterpreted(new CMaStack(30));
+    }
+
+    @Test
+    public void test_slide_multiple_values() {
+        // stack: [1, 2, 3, 4, 5], SLIDE 2 2 → kopeeri 2 väärtust (4, 5) 2 positsiooni allapoole
+        // S[SP-2-2+1] = S[SP-2+1] → S[1] = S[3] = 4
+        // S[SP-2-2+2] = S[SP-2+2] → S[2] = S[4] = 5
+        // truncate(SP-2+1) = truncate(3) → stack: [1, 4, 5]
+        pw.visit(LOADC, 1);
+        pw.visit(LOADC, 2);
+        pw.visit(LOADC, 3);
+        pw.visit(LOADC, 4);
+        pw.visit(LOADC, 5);
+        pw.visit(SLIDE, 2, 2);
+
+        assertInterpreted(new CMaStack(1, 4, 5));
+    }
+
+    @Test
+    public void test_slide_zero() {
+        // stack: [10, 20], SLIDE 0 1 → q=0, nihkumist pole, truncate(SP+1) → muutumatu
+        pw.visit(LOADC, 10);
+        pw.visit(LOADC, 20);
+        pw.visit(SLIDE, 0, 1);
+
+        assertInterpreted(new CMaStack(10, 20));
     }
 }
