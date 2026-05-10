@@ -4,7 +4,7 @@ public record CMaIntIntInstruction(Code code, int arg1, int arg2) implements CMa
 
     public enum Code {
         //@formatter:off
-        /** nihuta m väärtust q positsiooni võrra allapoole */
+        /** nihuta m pealmist väärtust q positsiooni võrra allapoole */
         SLIDE,
         //@formatter:on
     }
