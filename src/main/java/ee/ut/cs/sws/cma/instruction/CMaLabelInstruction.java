@@ -11,6 +11,9 @@ public record CMaLabelInstruction(Code code, CMaLabel label) implements CMaInstr
 
         /** hüppa labelile kui stackipealne väärtus on 0 */
         JUMPZ,
+
+        /** indekseeritud hüpe: PC = target(label) + S[SP]; SP-- */
+        JUMPI,
         //@formatter:on
     }
 
