@@ -19,11 +19,11 @@ public record CMaIntInstruction(Code code, int arg) implements CMaInstruction<CM
         /** lisa stackile FP + j (suhteline aadress) */
         LOADRC,
 
-        /** loe väärtus FP-suhteliselt indeksilt */
-        LOADR,
+        /** loe m väärtust mälust aadressil S[SP], laienda stack m-1 pesa võrra */
+        LOADM,
 
-        /** salvesta väärtus FP-suhtelisele indeksile */
-        STORER,
+        /** kirjuta m väärtust S[SP-m..SP-1] mällu aadressile S[SP], eemalda aadress */
+        STOREM,
 
         /** sea piirviit EP = SP + m, kontrolli EP >= HP */
         ENTER,

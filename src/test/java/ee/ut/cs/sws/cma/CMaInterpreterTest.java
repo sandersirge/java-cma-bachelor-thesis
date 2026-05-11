@@ -235,7 +235,7 @@ public class CMaInterpreterTest {
         assertInterpreted(new CMaStack(5, 0, 0));
     }
 
-    // Funktsioonikutsed: Samm 3 — LOADRC, LOADR ja STORER käskude testimine
+    // Funktsioonikutsed: Samm 3 — LOADRC, LOADR, STORER, LOADM ja STOREM käskude testimine
 
     @Test
     public void test_loadrc() {
@@ -249,9 +249,9 @@ public class CMaInterpreterTest {
     public void test_loadr() {
         /*
          * stack: [10, 20, 30], fp = 0 (vaikeväärtus)
-         * LOADR 2 → push(fp + 2) = push(2), LOAD → push(stack[2]) = 30
+         * LOADR 2 1 → LOADRC 2; LOADM 1 → push(fp + 2) = push(2), load 1 väärtus: push(stack[2]) = 30
          */
-        pw.visit(LOADR, 2);
+        pw.visit(LOADR, 2, 1);
 
         assertInterpreted(new CMaStack(10, 20, 30, 30), new CMaStack(10, 20, 30));
     }
@@ -260,12 +260,49 @@ public class CMaInterpreterTest {
     public void test_storer() {
         /*
          * stack: [10, 20, 30], fp = 0 (vaikeväärtus)
-         * LOADC 99; STORER 1 → push(fp + 1) = push(1), STORE → stack[1] = 99
+         * LOADC 99; STORER 1 1 → LOADRC 1; STOREM 1
+         *   LOADRC 1: push(fp + 1) = push(1) → [10, 20, 30, 99, 1]
+         *   STOREM 1: stack[1] = stack[SP-1] = 99, SP ei muutu → [10, 99, 30, 99, 1]
          */
         pw.visit(LOADC, 99);
-        pw.visit(STORER, 1);
+        pw.visit(STORER, 1, 1);
 
-        assertInterpreted(new CMaStack(10, 99, 30, 99), new CMaStack(10, 20, 30));
+        assertInterpreted(new CMaStack(10, 99, 30, 99, 1), new CMaStack(10, 20, 30));
+    }
+
+    @Test
+    public void test_loadm() {
+        /*
+         * LOADM 2: lae 2 väärtust aadressilt S[SP]
+         * stack enne: [10, 20, 30, 1]   (addr = 1, loeb stack[1] ja stack[2])
+         * Tsükkel tagurpidi:
+         *   i=1: S[SP+1] ← S[S[SP]+1] → S[4] ← S[2] = 30  (laiendab stacki)
+         *   i=0: S[SP+0] ← S[S[SP]+0] → S[3] ← S[1] = 20  (kirjutab üle aadressi)
+         * SP ← SP + 2 - 1 = SP + 1
+         * stack pärast: [10, 20, 30, 20, 30]
+         */
+        pw.visit(LOADC, 10);
+        pw.visit(LOADC, 20);
+        pw.visit(LOADC, 30);
+        pw.visit(LOADC, 1);              // aadress: stack[1..2] = [20, 30]
+        pw.visit(LOADM, 2);
+
+        assertInterpreted(new CMaStack(10, 20, 30, 20, 30));
+    }
+
+    @Test
+    public void test_storem() {
+        /*
+         * STOREM 2: kirjuta 2 väärtust aadressile S[SP], SP ei muutu
+         * stack enne: [0, 0, 7, 8, 0]  (addr = 0, kirjutab stack[2] ja stack[3] → stack[0] ja stack[1])
+         *   i=0: S[S[SP]+0] ← S[SP-2+0] → S[0] ← S[2] = 7
+         *   i=1: S[S[SP]+1] ← S[SP-2+1] → S[1] ← S[3] = 8
+         * aadress (0) jääb pinule → SP ei muutu
+         * stack pärast: [7, 8, 7, 8, 0]
+         */
+        pw.visit(STOREM, 2);
+
+        assertInterpreted(new CMaStack(7, 8, 7, 8, 0), new CMaStack(0, 0, 7, 8, 0));
     }
 
     // Funktsioonikutsed: Samm 4 — MARK ja CALL käskude testimine
@@ -389,7 +426,7 @@ public class CMaInterpreterTest {
          * 5: ENTER 1        → EP = (4-1)+1 = 4
          * 6: ALLOC 1        → [10, 0, 0, 4, 0]        (lokaalne muutuja indeksil 4)
          * 7: LOADC 99
-         * 8: STORER 1       → stack[FP+1]=stack[4]=99  → [10, 0, 0, 4, 99, 99]
+         * 8: STORER 1 1     → stack[FP+1]=stack[4]=99  → [10, 0, 0, 4, 99, 99]
          * 9: POP            → [10, 0, 0, 4, 99]
          * 10: RETURN 3      → PC=4, EP=0, SP=3-3=0, FP=0, truncate(1) → [10]
          */
@@ -404,7 +441,7 @@ public class CMaInterpreterTest {
         pw.visit(ENTER, 1);              // 5
         pw.visit(ALLOC, 1);              // 6: lokaalne muutuja
         pw.visit(LOADC, 99);             // 7
-        pw.visit(STORER, 1);             // 8: kirjuta lokaalsesse muutujasse
+        pw.visit(STORER, 1, 1);   // 8: kirjuta lokaalsesse muutujasse
         pw.visit(POP);                        // 9
         pw.visit(RETURN, 3);             // 10: tagasta, q=3
 
@@ -608,18 +645,18 @@ public class CMaInterpreterTest {
         pw.visit(ALLOC, 1);              // 7: eralda koht r-ile
 
         /* kutsu inc(n) */
-        pw.visit(LOADR, -3);             // 8: push n
+        pw.visit(LOADR, -3, 1);   // 8: push n
         pw.visit(MARK);                       // 9: push EP, FP
         pw.visit(LOADC, 18);             // 10: _inc aadress = 18
         pw.visit(CALL);                       // 11
         pw.visit(SLIDE, 0, 1);    // 12: tõsta inc(n) tulemus
 
-        pw.visit(STORER, 1);             // 13: r = inc(n)
+        pw.visit(STORER, 1, 1);   // 13: r = inc(n)
         pw.visit(POP);                        // 14: eemalda STORER duplikaat
 
         /* return r */
-        pw.visit(LOADR, 1);              // 15: push r
-        pw.visit(STORER, -3);            // 16: kirjuta tulemus parameetri pessa
+        pw.visit(LOADR, 1, 1);    // 15: push r
+        pw.visit(STORER, -3, 1);  // 16: kirjuta tulemus parameetri pessa
         pw.visit(RETURN, 3);             // 17
 
         /*
@@ -628,10 +665,10 @@ public class CMaInterpreterTest {
          */
         pw.visit(_inc);                       // label indeksil 18
         pw.visit(ENTER, 0);              // 18: lokaalseid muutujaid pole
-        pw.visit(LOADR, -3);             // 19: push x
+        pw.visit(LOADR, -3, 1);   // 19: push x
         pw.visit(LOADC, 1);              // 20
         pw.visit(ADD);                        // 21: x + 1
-        pw.visit(STORER, -3);            // 22: tulemus → parameetri pessa
+        pw.visit(STORER, -3, 1);  // 22: tulemus → parameetri pessa
         pw.visit(RETURN, 3);             // 23
 
         /* Oodatav tulemus: inc(41) = 42, main tagastab 42 */
@@ -691,18 +728,18 @@ public class CMaInterpreterTest {
         pw.visit(ALLOC, 1);              // 7: eralda koht r-ile
 
         /* kutsu fac(n): n on FP-3 */
-        pw.visit(LOADR, -3);             // 8: push n
+        pw.visit(LOADR, -3, 1);   // 8: push n
         pw.visit(MARK);                       // 9: push EP, FP
         pw.visit(LOADC, 18);             // 10: _fac aadress = 18
         pw.visit(CALL);                       // 11
         pw.visit(SLIDE, 0, 1);    // 12: tõsta fac(n) tulemus
 
-        pw.visit(STORER, 1);             // 13: r = fac(n)
+        pw.visit(STORER, 1, 1);   // 13: r = fac(n)
         pw.visit(POP);                        // 14: eemalda STORER duplikaat
 
         /* return r: kopeeri r parameetri pessa */
-        pw.visit(LOADR, 1);              // 15: push r
-        pw.visit(STORER, -3);            // 16: kirjuta tulemus parameetri pessa
+        pw.visit(LOADR, 1, 1);    // 15: push r
+        pw.visit(STORER, -3, 1);  // 16: kirjuta tulemus parameetri pessa
         pw.visit(RETURN, 3);             // 17
 
         /* === fac(n) funktsioon (indeksid 18-...) === */
@@ -710,18 +747,18 @@ public class CMaInterpreterTest {
         pw.visit(ENTER, 0);              // 18: lokaalseid muutujaid pole
 
         /* if (n <= 0) return 1 */
-        pw.visit(LOADR, -3);             // 19: push n
+        pw.visit(LOADR, -3, 1);   // 19: push n
         pw.visit(LOADC, 0);              // 20
         pw.visit(LEQ);                        // 21: n <= 0?
         pw.visit(JUMPZ, _recurse);            // 22: kui n > 0, hüppa rekursiivsesse harusse
         pw.visit(LOADC, 1);              // 23: baassjuht: tulemus = 1
-        pw.visit(STORER, -3);            // 24: tulemus → parameetri pessa
+        pw.visit(STORER, -3, 1);  // 24: tulemus → parameetri pessa
         pw.visit(RETURN, 3);             // 25
 
         /* rekursiivne juht: return n * fac(n-1) */
         pw.visit(_recurse);                   // label indeksil 26
-        pw.visit(LOADR, -3);             // 26: push n (korrutamise jaoks)
-        pw.visit(LOADR, -3);             // 27: push n (fac argumendi jaoks)
+        pw.visit(LOADR, -3, 1);   // 26: push n (korrutamise jaoks)
+        pw.visit(LOADR, -3, 1);   // 27: push n (fac argumendi jaoks)
         pw.visit(LOADC, 1);              // 28
         pw.visit(SUB);                        // 29: n-1
         pw.visit(MARK);                       // 30: push EP, FP
@@ -729,7 +766,7 @@ public class CMaInterpreterTest {
         pw.visit(CALL);                       // 32
         pw.visit(SLIDE, 0, 1);    // 33: tõsta fac(n-1) tulemus
         pw.visit(MUL);                        // 34: n * fac(n-1)
-        pw.visit(STORER, -3);            // 35: tulemus → parameetri pessa
+        pw.visit(STORER, -3, 1);  // 35: tulemus → parameetri pessa
         pw.visit(RETURN, 3);             // 36
 
         return CMaInterpreter.run(pw.toProgram());
@@ -833,10 +870,10 @@ public class CMaInterpreterTest {
          */
         pw.visit(_inc);
         pw.visit(ENTER, 0);              // 6:  lokaalseid muutujaid pole; EP = SP+0
-        pw.visit(LOADR, -4);             // 7:  push x (FP-4, esimene arg)
-        pw.visit(LOADR, -3);             // 8:  push step (FP-3, teine arg)
+        pw.visit(LOADR, -4, 1);   // 7:  push x (FP-4, esimene arg)
+        pw.visit(LOADR, -3, 1);   // 8:  push step (FP-3, teine arg)
         pw.visit(ADD);                        // 9:  x + step
-        pw.visit(STORER, -3);            // 10: tulemus → step-pessa (FP-3)
+        pw.visit(STORER, -3, 1);  // 10: tulemus → step-pessa (FP-3)
         pw.visit(RETURN, 3);             // 11: q=3; x-pesa (FP-4) jääb kutsujale
 
         /*
@@ -847,9 +884,9 @@ public class CMaInterpreterTest {
         pw.visit(ENTER, 2);              // 12: EP = SP+2 (2 lokaalset: n, r)
         pw.visit(ALLOC, 2);              // 13: eralda FP+1 (n) ja FP+2 (r)
         pw.visit(LOADC, 5);              // 14: push 5
-        pw.visit(STORER, 1);             // 15: n = 5 (FP+1)
+        pw.visit(STORER, 1, 1);   // 15: n = 5 (FP+1)
         pw.visit(POP);                        // 16: eemalda STORER duplikaat
-        pw.visit(LOADR, -3);             // 17: push op (FP-3) — JUMPI indeks
+        pw.visit(LOADR, -3, 1);   // 17: push op (FP-3) — JUMPI indeks
         pw.visit(JUMPI, _table);              // 18: PC = target(_table) + op
 
         /*
@@ -874,7 +911,7 @@ public class CMaInterpreterTest {
         pw.visit(LOADC, 6);              // 25: _inc aadress = 6
         pw.visit(CALL);                       // 26: FP=10, PC=6, S[10]=27
         pw.visit(SLIDE, 1, 1);    // 27: nihuta tulemus x-pesa kohale, kustuta x
-        pw.visit(STORER, 2);             // 28: r = tulemus (FP+2)
+        pw.visit(STORER, 2, 1);   // 28: r = tulemus (FP+2)
         pw.visit(POP);                        // 29: eemalda STORER duplikaat
         pw.visit(JUMP, _end);                 // 30: hüppa tagastusele
 
@@ -883,10 +920,10 @@ public class CMaInterpreterTest {
          * Käsud: LOADR, LOADC, MUL, STORER.
          */
         pw.visit(_case1);
-        pw.visit(LOADR, 1);              // 31: push n (FP+1)
+        pw.visit(LOADR, 1, 1);    // 31: push n (FP+1)
         pw.visit(LOADC, 2);              // 32: push 2
         pw.visit(MUL);                        // 33: n * 2 = 10
-        pw.visit(STORER, 2);             // 34: r = n*2 (FP+2)
+        pw.visit(STORER, 2, 1);   // 34: r = n*2 (FP+2)
         pw.visit(POP);                        // 35: eemalda STORER duplikaat
 
         /*
@@ -894,8 +931,8 @@ public class CMaInterpreterTest {
          * Käsud: LOADR, STORER, RETURN.
          */
         pw.visit(_end);
-        pw.visit(LOADR, 2);              // 36: push r (FP+2)
-        pw.visit(STORER, -3);            // 37: tulemus → parameetri pessa (FP-3)
+        pw.visit(LOADR, 2, 1);    // 36: push r (FP+2)
+        pw.visit(STORER, -3, 1);  // 37: tulemus → parameetri pessa (FP-3)
         pw.visit(RETURN, 3);             // 38: tagasta, q=3
 
         return CMaInterpreter.run(pw.toProgram());

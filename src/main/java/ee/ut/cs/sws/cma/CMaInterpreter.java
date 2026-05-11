@@ -5,6 +5,9 @@ import ee.ut.cs.sws.cma.instruction.*;
 import static ee.ut.cs.sws.cma.instruction.CMaBasicInstruction.Code.LOAD;
 import static ee.ut.cs.sws.cma.instruction.CMaBasicInstruction.Code.STORE;
 import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.LOADC;
+import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.LOADM;
+import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.STOREM;
+import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.LOADRC;
 
 public class CMaInterpreter {
 
@@ -109,15 +112,22 @@ public class CMaInterpreter {
                     }
                     case ALLOC -> stack.allocate(arg);
                     case LOADRC -> stack.push(fp + arg);
-                    case LOADR -> {
-                        // LOADR j = LOADRC j; LOAD
-                        execute(new CMaIntInstruction(CMaIntInstruction.Code.LOADRC, arg));
-                        execute(new CMaBasicInstruction(LOAD));
+                    case LOADM -> {
+                        // LOADM m: S[SP+i] ← S[S[SP]+i] for i=m-1..0; SP ← SP + m - 1
+                        int sp = stack.size() - 1;
+                        int target = stack.get(sp);                         // S[SP] = base address
+                        stack.allocate(arg - 1);                        // expand: new SP = sp + arg - 1
+                        for (int i = arg - 1; i >= 0; i--) {
+                            stack.set(sp + i, stack.get(target + i));       // S[SP+i] ← S[target+i]
+                        }
                     }
-                    case STORER -> {
-                        // STORER j = LOADRC j; STORE
-                        execute(new CMaIntInstruction(CMaIntInstruction.Code.LOADRC, arg));
-                        execute(new CMaBasicInstruction(STORE));
+                    case STOREM -> {
+                        // STOREM m: S[S[SP]+i] ← S[SP-m+i] for i=0..m-1; eemalda aadress
+                        int sp = stack.size() - 1;
+                        int target = stack.get(sp);                         // S[SP] = destination address
+                        for (int i = 0; i < arg; i++) {
+                            stack.set(target + i, stack.get(sp - arg + i)); // S[target+i] ← S[SP-m+i]
+                        }
                     }
                     case ENTER -> {
                         // EP = SP + m; kui EP >= HP, siis viga
@@ -151,7 +161,7 @@ public class CMaInterpreter {
                             int sp = stack.size() - 1;
                             if (arg2 == 0) {
                                 // m = 0: lihtsalt kärbi q pesa
-                                stack.truncate(sp - arg1 + 1); // SP = SP - q, size = SP - q + 1
+                                stack.truncate(sp - arg1 + 1);  // SP = SP - q, size = SP - q + 1
                             } else {
                                 // kopeeri m väärtust q positsiooni allapoole, siis kärbi
                                 sp = sp - arg1 - arg2;
@@ -159,9 +169,19 @@ public class CMaInterpreter {
                                     sp++;
                                     stack.set(sp, stack.get(sp + arg1)); // S[SP] ← S[SP+q]
                                 }
-                                stack.truncate(sp + 1); // SP = SP - q, size = SP - q + 1
+                                stack.truncate(sp + 1);         // SP = SP - q, size = SP - q + 1
                             }
                         }
+                    }
+                    case LOADR -> {
+                        // LOADR j m = LOADRC j; LOADM m
+                        execute(new CMaIntInstruction(LOADRC, arg1));
+                        execute(new CMaIntInstruction(LOADM, arg2));
+                    }
+                    case STORER -> {
+                        // STORER j m = LOADRC j; STOREM m
+                        execute(new CMaIntInstruction(LOADRC, arg1));
+                        execute(new CMaIntInstruction(STOREM, arg2));
                     }
                 }
             }
