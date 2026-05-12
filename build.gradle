@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.github.sandersirge'
-version = 'v0.0.1-pre_release'
+version = 'v0.0.2-pre_release'
 
 repositories {
     mavenCentral()
