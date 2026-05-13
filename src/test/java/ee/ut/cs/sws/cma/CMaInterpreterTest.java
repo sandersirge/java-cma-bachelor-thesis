@@ -558,9 +558,9 @@ public class CMaInterpreterTest {
         pw.visit(LOADC, 1);              // 0: indeks
         pw.visit(JUMPI, _table);              // 1: PC = target(_table) + 1 = 3
         pw.visit(_table);
-        pw.visit(JUMP, _case0);               // 2
-        pw.visit(JUMP, _case1);               // 3
-        pw.visit(JUMP, _case2);               // 4
+        pw.visit(JUMP, _case0);               // 2: hüppa case0-le
+        pw.visit(JUMP, _case1);               // 3: hüppa case1-le
+        pw.visit(JUMP, _case2);               // 4: hüppa case2-le
         pw.visit(_case0);
         pw.visit(LOADC, 100);
         pw.visit(HALT);
@@ -585,9 +585,9 @@ public class CMaInterpreterTest {
         pw.visit(LOADC, 2);              // 0: indeks
         pw.visit(JUMPI, _table);              // 1: PC = target(_table) + 2 = 4
         pw.visit(_table);
-        pw.visit(JUMP, _case0);               // 2
-        pw.visit(JUMP, _case1);               // 3
-        pw.visit(JUMP, _case2);               // 4
+        pw.visit(JUMP, _case0);               // 2: hüppa case0-le
+        pw.visit(JUMP, _case1);               // 3: hüppa case1-le
+        pw.visit(JUMP, _case2);               // 4: hüppa case2-le
         pw.visit(_case0);
         pw.visit(LOADC, 100);
         pw.visit(HALT);
