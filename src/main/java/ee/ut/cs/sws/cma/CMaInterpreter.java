@@ -12,11 +12,11 @@ import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.LOADRC;
 public class CMaInterpreter {
 
     private final CMaProgram program;
-    private int pc = 0;
     private final CMaStack stack;
-    private int fp = 0;  // Frame Pointer (raamiviit)
-    private int ep = 0;  // Extreme Pointer (piiriviit)
-    private int hp = Integer.MAX_VALUE;  // Heap Pointer (kuhjaviit)
+    private int pc = 0;
+    private int fp = 0;  // Frame Pointer
+    private int ep = 0;  // Extreme Pointer
+    private int hp = Integer.MAX_VALUE;  // Heap Pointer
 
     private CMaInterpreter(CMaProgram program, CMaStack initialStack) {
         this.program = program;

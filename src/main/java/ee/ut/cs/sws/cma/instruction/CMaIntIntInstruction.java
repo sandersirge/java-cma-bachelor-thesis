@@ -20,4 +20,3 @@ public record CMaIntIntInstruction(Code code, int arg1, int arg2) implements CMa
         return code.name() + " " + arg1 + " " + arg2;
     }
 }
-

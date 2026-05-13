@@ -602,12 +602,12 @@ public class CMaInterpreterTest {
     // Funktsioonikutsed: Samm 9 — Integratsioonitestid kõikide käskude testimiseks erinevates töövoogudes
 
     /**
-     * Mitterekursiivne {@code inc(x)} funktsioon, mida kutsub {@code main(n)}.
+     * Mitterekursiivne {@code inc(x)} funktsioon, mida kutsub {@code run(n)}.
      *
      * <p>C-kood:</p>
      * <pre>{@code
      * int inc(int x) { return x + 1; }
-     * int main(int n) {
+     * int run(int n) {
      *     int r = inc(n);
      *     return r;
      * }
@@ -619,43 +619,43 @@ public class CMaInterpreterTest {
      *   <tr><td>{@code FP-2}</td><td>salvestatud EP</td></tr>
      *   <tr><td>{@code FP-1}</td><td>salvestatud FP</td></tr>
      *   <tr><td>{@code FP}</td><td>salvestatud PC (tagastusaadress)</td></tr>
-     *   <tr><td>{@code FP+1} ja edasi</td><td>lokaalsed muutujad</td></tr>
+     *   <tr><td>{@code FP+1}</td><td>lokaalne muutuja 'r' (ainult run-is)</td></tr>
      * </table>
      */
     @Test
     public void test_main_calls_non_recursive_function() {
-        CMaLabel _main = new CMaLabel();
+        CMaLabel _run = new CMaLabel();
         CMaLabel _inc = new CMaLabel();
 
-        /* === Peaprogramm (indeksid 0-5): kutsub main(41) === */
-        pw.visit(LOADC, 41);             // 0: main parameetriks antav väärtus
+        /* === Peaprogramm (indeksid 0-5): kutsub run(41) === */
+        pw.visit(LOADC, 41);             // 0: muutuja 'n' väärtus, run parameeter
         pw.visit(MARK);                       // 1: push EP, FP
-        pw.visit(LOADC, 6);              // 2: _main aadress = 6
+        pw.visit(LOADC, 6);              // 2: _run aadress = 6
         pw.visit(CALL);                       // 3
         pw.visit(SLIDE, 0, 1);    // 4: tõsta tulemus
         pw.visit(HALT);                       // 5
 
         /*
-         * === main(n) funktsioon (indeksid 6-17) ===
-         * int main(int n) { int r = inc(n); return r; }
-         * Lokaalsed: r on FP+1
+         * === run(n) funktsioon (indeksid 6-17) ===
+         * int run(int n) { int r = inc(n); return r; }
+         * Lokaalsed: muutuja 'r' on FP+1
          */
-        pw.visit(_main);                      // label indeksil 6
-        pw.visit(ENTER, 1);              // 6: EP = SP + 1 (1 lokaalne muutuja: r)
-        pw.visit(ALLOC, 1);              // 7: eralda koht r-ile
+        pw.visit(_run);                       // label indeksil 6
+        pw.visit(ENTER, 1);              // 6: EP = SP + 1 (lokaalne muutuja 'r')
+        pw.visit(ALLOC, 1);              // 7: eralda koht muutujale 'r'
 
-        /* kutsu inc(n) */
-        pw.visit(LOADR, -3, 1);   // 8: push n
+        /* kutsu inc(muutuja 'n') */
+        pw.visit(LOADR, -3, 1);   // 8: laadi muutuja 'n'
         pw.visit(MARK);                       // 9: push EP, FP
         pw.visit(LOADC, 18);             // 10: _inc aadress = 18
         pw.visit(CALL);                       // 11
-        pw.visit(SLIDE, 0, 1);    // 12: tõsta inc(n) tulemus
+        pw.visit(SLIDE, 0, 1);    // 12: tõsta inc tulemuse
 
-        pw.visit(STORER, 1, 1);   // 13: r = inc(n)
+        pw.visit(STORER, 1, 1);   // 13: muutuja 'r' = inc(muutuja 'n')
         pw.visit(POP);                        // 14: eemalda STORER duplikaat
 
-        /* return r */
-        pw.visit(LOADR, 1, 1);    // 15: push r
+        /* tagasta muutuja 'r' */
+        pw.visit(LOADR, 1, 1);    // 15: laadi muutuja 'r'
         pw.visit(STORER, -3, 1);  // 16: kirjuta tulemus parameetri pessa
         pw.visit(RETURN, 3);             // 17
 
@@ -665,18 +665,18 @@ public class CMaInterpreterTest {
          */
         pw.visit(_inc);                       // label indeksil 18
         pw.visit(ENTER, 0);              // 18: lokaalseid muutujaid pole
-        pw.visit(LOADR, -3, 1);   // 19: push x
+        pw.visit(LOADR, -3, 1);   // 19: laadi muutuja 'x'
         pw.visit(LOADC, 1);              // 20
-        pw.visit(ADD);                        // 21: x + 1
+        pw.visit(ADD);                        // 21: muutuja 'x' + 1
         pw.visit(STORER, -3, 1);  // 22: tulemus → parameetri pessa
         pw.visit(RETURN, 3);             // 23
 
-        /* Oodatav tulemus: inc(41) = 42, main tagastab 42 */
+        /* Oodatav tulemus: inc(41) = 42, run tagastab 42 */
         assertInterpreted(new CMaStack(42));
     }
 
     /**
-     * Rekursiivne {@code fac(n)} funktsioon.
+     * Rekursiivne {@code fac(n)} funktsioon, mida kutsub {@code run(n)}.
      *
      * <p>C-kood:</p>
      * <pre>{@code
@@ -684,7 +684,7 @@ public class CMaInterpreterTest {
      *     if (n <= 0) return 1;
      *     return n * fac(n - 1);
      * }
-     * int main(int n) {
+     * int run(int n) {
      *     int r = fac(n);
      *     return r;
      * }
@@ -696,49 +696,49 @@ public class CMaInterpreterTest {
      *   <tr><td>{@code FP-2}</td><td>salvestatud EP</td></tr>
      *   <tr><td>{@code FP-1}</td><td>salvestatud FP</td></tr>
      *   <tr><td>{@code FP}</td><td>salvestatud PC (tagastusaadress)</td></tr>
-     *   <tr><td>{@code FP+1} ja edasi</td><td>lokaalsed muutujad</td></tr>
+     *   <tr><td>{@code FP+1}</td><td>lokaalne muutuja 'r' (ainult run-is)</td></tr>
      * </table>
      *
-     * <p>Tagastus: tulemus kirjutatakse parameetri pessa ({@code STORER -3}),
-     * seejärel {@code RETURN 3} kärbib täitmisraami ja kutsuja kasutab
-     * {@code SLIDE 0 1} tulemuse kättesaamiseks.</p>
+     * <p>Tulemus kirjutatakse parameetri pessa ({@code STORER -3}),
+     * seejärel {@code RETURN 3} kärbib täitmisraami.
+     * Kutsuja kasutab {@code SLIDE 0 1} (ei nihuta).</p>
      */
     private CMaStack runFac(int n) {
         pw = new CMaProgramWriter();
 
         CMaLabel _fac = new CMaLabel();
         CMaLabel _recurse = new CMaLabel();
-        CMaLabel _main = new CMaLabel();
+        CMaLabel _run = new CMaLabel();
 
-        /* === Peaprogramm (indeksid 0-5): kutsub main() === */
-        pw.visit(LOADC, n);                   // 0: main parameetriks antav n väärtus
+        /* === Peaprogramm (indeksid 0-5): kutsub run(n) === */
+        pw.visit(LOADC, n);                   // 0: muutuja 'n' väärtus, run parameetriks
         pw.visit(MARK);                       // 1: push EP, FP
-        pw.visit(LOADC, 6);              // 2: _main aadress = 6
+        pw.visit(LOADC, 6);              // 2: _run aadress = 6
         pw.visit(CALL);                       // 3: FP=3, PC=6, S[3]=4
         pw.visit(SLIDE, 0, 1);    // 4: tõsta tulemus
         pw.visit(HALT);                       // 5
 
         /*
-         * === main() funktsioon (indeksid 6-17) ===
-         * int main(int n) { int r = fac(n); return r; }
-         * Lokaalsed: r on FP+1 (indeks 1 täitmisraamist)
+         * === run(n) funktsioon (indeksid 6-17) ===
+         * int run(int n) { int r = fac(n); return r; }
+         * Lokaalsed: muutuja 'r' on FP+1
          */
-        pw.visit(_main);                      // label indeksil 6
-        pw.visit(ENTER, 1);              // 6: EP = SP + 1 (1 lokaalne muutuja: r)
-        pw.visit(ALLOC, 1);              // 7: eralda koht r-ile
+        pw.visit(_run);                       // label indeksil 6
+        pw.visit(ENTER, 1);              // 6: EP = SP + 1 (lokaalne muutuja 'r')
+        pw.visit(ALLOC, 1);              // 7: eralda koht muutujale 'r'
 
-        /* kutsu fac(n): n on FP-3 */
-        pw.visit(LOADR, -3, 1);   // 8: push n
+        /* kutsu fac(muutuja 'n'): muutuja 'n' asub FP-3 */
+        pw.visit(LOADR, -3, 1);   // 8: laadi muutuja 'n'
         pw.visit(MARK);                       // 9: push EP, FP
         pw.visit(LOADC, 18);             // 10: _fac aadress = 18
         pw.visit(CALL);                       // 11
-        pw.visit(SLIDE, 0, 1);    // 12: tõsta fac(n) tulemus
+        pw.visit(SLIDE, 0, 1);    // 12: tõsta fac tulemuse
 
-        pw.visit(STORER, 1, 1);   // 13: r = fac(n)
+        pw.visit(STORER, 1, 1);   // 13: muutuja 'r' = fac(muutuja 'n')
         pw.visit(POP);                        // 14: eemalda STORER duplikaat
 
-        /* return r: kopeeri r parameetri pessa */
-        pw.visit(LOADR, 1, 1);    // 15: push r
+        /* tagasta muutuja 'r': kopeeri muutuja 'r' parameetri pessa */
+        pw.visit(LOADR, 1, 1);    // 15: laadi muutuja 'r'
         pw.visit(STORER, -3, 1);  // 16: kirjuta tulemus parameetri pessa
         pw.visit(RETURN, 3);             // 17
 
@@ -746,26 +746,26 @@ public class CMaInterpreterTest {
         pw.visit(_fac);                       // label indeksil 18
         pw.visit(ENTER, 0);              // 18: lokaalseid muutujaid pole
 
-        /* if (n <= 0) return 1 */
-        pw.visit(LOADR, -3, 1);   // 19: push n
+        /* kui muutuja 'n' <= 0, tagasta 1 */
+        pw.visit(LOADR, -3, 1);   // 19: laadi muutuja 'n'
         pw.visit(LOADC, 0);              // 20
-        pw.visit(LEQ);                        // 21: n <= 0?
+        pw.visit(LEQ);                        // 21: muutuja 'n' <= 0?
         pw.visit(JUMPZ, _recurse);            // 22: kui n > 0, hüppa rekursiivsesse harusse
         pw.visit(LOADC, 1);              // 23: baassjuht: tulemus = 1
         pw.visit(STORER, -3, 1);  // 24: tulemus → parameetri pessa
         pw.visit(RETURN, 3);             // 25
 
-        /* rekursiivne juht: return n * fac(n-1) */
+        /* rekursiivne juht: tagasta muutuja 'n' * fac(muutuja 'n' - 1) */
         pw.visit(_recurse);                   // label indeksil 26
-        pw.visit(LOADR, -3, 1);   // 26: push n (korrutamise jaoks)
-        pw.visit(LOADR, -3, 1);   // 27: push n (fac argumendi jaoks)
+        pw.visit(LOADR, -3, 1);   // 26: laadi muutuja 'n' (korrutamiseks)
+        pw.visit(LOADR, -3, 1);   // 27: laadi muutuja 'n' (fac argumendiks)
         pw.visit(LOADC, 1);              // 28
-        pw.visit(SUB);                        // 29: n-1
+        pw.visit(SUB);                        // 29: muutuja 'n' - 1
         pw.visit(MARK);                       // 30: push EP, FP
         pw.visit(LOADC, 18);             // 31: _fac aadress = 18
         pw.visit(CALL);                       // 32
-        pw.visit(SLIDE, 0, 1);    // 33: tõsta fac(n-1) tulemus
-        pw.visit(MUL);                        // 34: n * fac(n-1)
+        pw.visit(SLIDE, 0, 1);    // 33: tõsta fac tulemuse
+        pw.visit(MUL);                        // 34: muutuja 'n' * fac(muutuja 'n' - 1)
         pw.visit(STORER, -3, 1);  // 35: tulemus → parameetri pessa
         pw.visit(RETURN, 3);             // 36
 
@@ -802,36 +802,38 @@ public class CMaInterpreterTest {
      * <p>C-kood:</p>
      * <pre>{@code
      * int inc(int x, int step) { return x + step; }
-     * int main(int op) {
+     * int run(int op) {
      *     int n = 5;
      *     int r;
      *     switch (op) {
-     *         case 0: r = inc(n, 1); break;  // LOADRC, MARK, CALL, SLIDE 1 1
+     *         case 0: r = inc(n, 1); break;  // LOADRC, MARK, CALL, SLIDE 0 1
      *         case 1: r = n * 2;     break;  // LOADR, MUL, STORER
      *     }
      *     return r;
      * }
      * }</pre>
      *
-     * <p>Täitmisraami paigutus (FP viitab salvestatud PC-le):</p>
+     * <p>Täitmisraami paigutus kahes funktsioonis (FP viitab salvestatud PC-le):</p>
      * <table>
-     *   <tr><td>{@code FP-3}</td><td>parameeter (op / step)</td></tr>
+     *   <tr><td>{@code FP-4}</td><td>muutuja 'x' — esimene parameeter (ainult inc-is)</td></tr>
+     *   <tr><td>{@code FP-3}</td><td>muutuja 'op' (run-is) / muutuja 'step' (inc-is)</td></tr>
      *   <tr><td>{@code FP-2}</td><td>salvestatud EP</td></tr>
      *   <tr><td>{@code FP-1}</td><td>salvestatud FP</td></tr>
      *   <tr><td>{@code FP}</td><td>salvestatud PC</td></tr>
-     *   <tr><td>{@code FP+1}</td><td>lokaalne n (main)</td></tr>
-     *   <tr><td>{@code FP+2}</td><td>lokaalne r (main)</td></tr>
-     *   <tr><td>{@code FP-4}</td><td>esimene parameeter x (ainult inc-is)</td></tr>
+     *   <tr><td>{@code FP+1}</td><td>lokaalne muutuja 'n' (ainult run-is)</td></tr>
+     *   <tr><td>{@code FP+2}</td><td>lokaalne muutuja 'r' (ainult run-is)</td></tr>
      * </table>
      *
-     * <p>{@code inc} kasutab {@code RETURN 3} (puhastab ainult org-pesad), jättes x-pesa alles.
-     * Kutsuja kasutab {@code SLIDE 1 1}, et x-pesa tulemusega üle kirjutada ja kärpida.</p>
+     * <p>{@code inc} kasutab {@code RETURN 4}, mis puhastab muutuja 'step' pesa ja
+     * organisatsioonilised pesad (EP, FP, PC). Tulemus kirjutatakse muutuja 'x' pessa
+     * ({@code STORER -4}). Kutsuja kasutab {@code SLIDE 0 1} — tulemus on pärast
+     * tagastust juba pinul.</p>
      *
      * <p>Programmi aadressid:</p>
      * <ul>
      *   <li>{@code 0–5}: peaprogramm</li>
      *   <li>{@code 6–11}: {@code inc(x, step)}</li>
-     *   <li>{@code 12–18}: {@code main(op)}</li>
+     *   <li>{@code 12–18}: {@code run(op)}</li>
      *   <li>{@code 19–20}: lülituslause harud</li>
      *   <li>{@code 21–30}: case 0 (inc)</li>
      *   <li>{@code 31–35}: case 1 (n*2)</li>
@@ -848,82 +850,82 @@ public class CMaInterpreterTest {
         pw = new CMaProgramWriter();
 
         CMaLabel _inc   = new CMaLabel();
-        CMaLabel _main  = new CMaLabel();
+        CMaLabel _run   = new CMaLabel();
         CMaLabel _table = new CMaLabel();
         CMaLabel _case0 = new CMaLabel();
         CMaLabel _case1 = new CMaLabel();
         CMaLabel _end   = new CMaLabel();
 
-        /* Peaprogramm (0–5): kutsub main(op). */
-        pw.visit(LOADC, op);                  // 0:  op → parameeter main-ile
+        /* Peaprogramm (0–5): kutsub run(op). */
+        pw.visit(LOADC, op);                  // 0:  muutuja 'op' → parameeter run-ile
         pw.visit(MARK);                       // 1:  push EP(0), FP(0)
-        pw.visit(LOADC, 12);             // 2:  _main aadress = 12
+        pw.visit(LOADC, 12);             // 2:  _run aadress = 12
         pw.visit(CALL);                       // 3:  FP=3, PC=12, S[3]=4
         pw.visit(SLIDE, 0, 1);    // 4:  tõsta tulemus parameetri kohalt
         pw.visit(HALT);                       // 5:  peaprogramm lõpeb
 
         /*
-         * inc(x, step) (6–11): tagastab x + step.
-         * FP-4=x (esimene arg), FP-3=step (teine arg).
-         * RETURN 3 puhastab ainult org-pesad — x-pesa jääb kutsujale.
+         * inc(muutuja 'x', muutuja 'step') (6–11): tagastab muutuja 'x' + muutuja 'step'.
+         * FP-4: muutuja 'x' (esimene arg), FP-3: muutuja 'step' (teine arg).
+         * RETURN 4 eemaldab muutuja 'step' pesa ja org-pesad (EP, FP, PC).
          * Käsud: ENTER, LOADR, ADD, STORER, RETURN.
          */
         pw.visit(_inc);
         pw.visit(ENTER, 0);              // 6:  lokaalseid muutujaid pole; EP = SP+0
-        pw.visit(LOADR, -4, 1);   // 7:  push x (FP-4, esimene arg)
-        pw.visit(LOADR, -3, 1);   // 8:  push step (FP-3, teine arg)
-        pw.visit(ADD);                        // 9:  x + step
-        pw.visit(STORER, -3, 1);  // 10: tulemus → step-pessa (FP-3)
-        pw.visit(RETURN, 3);             // 11: q=3; x-pesa (FP-4) jääb kutsujale
+        pw.visit(LOADR, -4, 1);   // 7:  laadi muutuja 'x' (FP-4, esimene arg)
+        pw.visit(LOADR, -3, 1);   // 8:  laadi muutuja 'step' (FP-3, teine arg)
+        pw.visit(ADD);                        // 9:  muutuja 'x' + muutuja 'step'
+        pw.visit(STORER, -4, 1);  // 10: tulemus → muutuja 'x' pessa (FP-4)
+        pw.visit(RETURN, 4);             // 11: eemaldab muutuja 'step' ja org-pesad
 
         /*
-         * main(op) (12–18): eraldab n=5 ja r, valib haru JUMPI abil.
+         * run(muutuja 'op') (12–18): eraldab muutuja 'n'=5 ja muutuja 'r', valib haru JUMPI abil.
          * Käsud: ENTER, ALLOC, STORER, LOADR, JUMPI.
          */
-        pw.visit(_main);
+        pw.visit(_run);
         pw.visit(ENTER, 2);              // 12: EP = SP+2 (2 lokaalset: n, r)
-        pw.visit(ALLOC, 2);              // 13: eralda FP+1 (n) ja FP+2 (r)
+        pw.visit(ALLOC, 2);              // 13: eralda koht muutujatele 'n' ja 'r'
         pw.visit(LOADC, 5);              // 14: push 5
-        pw.visit(STORER, 1, 1);   // 15: n = 5 (FP+1)
+        pw.visit(STORER, 1, 1);   // 15: muutuja 'n' = 5 (FP+1)
         pw.visit(POP);                        // 16: eemalda STORER duplikaat
-        pw.visit(LOADR, -3, 1);   // 17: push op (FP-3) — JUMPI indeks
+        pw.visit(LOADR, -3, 1);   // 17: laadi muutuja 'op' (FP-3) — JUMPI indeks
         pw.visit(JUMPI, _table);              // 18: PC = target(_table) + op
 
         /*
          * Lülituslause harud (19–20): JUMPI sihtmärgid.
-         * op=0 → _case0 (21), op=1 → _case1 (31).
+         * muutuja 'op'=0 → _case0 (21), muutuja 'op'=1 → _case1 (31).
          */
         pw.visit(_table);
         pw.visit(JUMP, _case0);               // 19: op=0 → kutsu inc(n, 1)
         pw.visit(JUMP, _case1);               // 20: op=1 → arvuta n*2
 
         /*
-         * case 0 (21–30): r = inc(n, 1).
-         * Push n (LOADRC+LOAD) ja step=1, kutsu inc.
-         * SLIDE 1 1 nihutab tulemuse x-pesa kohale ja kustutab x-pesa.
-         * Käsud: LOADRC, LOAD, LOADC, MARK, CALL, SLIDE 1 1, STORER.
+         * case 0 (21–30): muutuja 'r' = inc(muutuja 'n', 1).
+         * Laadi muutuja 'n' (LOADRC+LOAD) ja muutuja 'step'=1, kutsu inc.
+         * SLIDE 0 1 on no-op — tulemus on pärast RETURN 4 juba pinul.
+         * Käsud: LOADRC, LOAD, LOADC, MARK, CALL, SLIDE 0 1, STORER.
          */
         pw.visit(_case0);
-        pw.visit(LOADRC, 1);             // 21: push FP+1 (n aadress) — LOADRC otse
-        pw.visit(LOAD);                       // 22: loe n väärtus aadressilt
-        pw.visit(LOADC, 1);              // 23: push step=1 (teine argument inc-ile)
+        pw.visit(LOADRC, 1);             // 21: laadi muutuja 'n' aadress (FP+1) — LOADRC otse
+        pw.visit(LOAD);                       // 22: loe muutuja 'n' väärtus
+        pw.visit(LOADC, 1);              // 23: muutuja 'step'=1 (teine arg inc-ile)
         pw.visit(MARK);                       // 24: push EP, FP
         pw.visit(LOADC, 6);              // 25: _inc aadress = 6
         pw.visit(CALL);                       // 26: FP=10, PC=6, S[10]=27
-        pw.visit(SLIDE, 1, 1);    // 27: nihuta tulemus x-pesa kohale, kustuta x
-        pw.visit(STORER, 2, 1);   // 28: r = tulemus (FP+2)
+        pw.visit(SLIDE, 0, 1);    // 27: tulemus juba pinul (no-op)
+        pw.visit(STORER, 2, 1);   // 28: muutuja 'r' = tulemus (FP+2)
         pw.visit(POP);                        // 29: eemalda STORER duplikaat
         pw.visit(JUMP, _end);                 // 30: hüppa tagastusele
 
         /*
-         * case 1 (31–35): r = n * 2.
+         * case 1 (31–35): muutuja 'r' = muutuja 'n' * 2.
          * Käsud: LOADR, LOADC, MUL, STORER.
          */
         pw.visit(_case1);
-        pw.visit(LOADR, 1, 1);    // 31: push n (FP+1)
+        pw.visit(LOADR, 1, 1);    // 31: laadi muutuja 'n' (FP+1)
         pw.visit(LOADC, 2);              // 32: push 2
-        pw.visit(MUL);                        // 33: n * 2 = 10
-        pw.visit(STORER, 2, 1);   // 34: r = n*2 (FP+2)
+        pw.visit(MUL);                        // 33: muutuja 'n' * 2 = 10
+        pw.visit(STORER, 2, 1);   // 34: muutuja 'r' = muutuja 'n'*2 (FP+2)
         pw.visit(POP);                        // 35: eemalda STORER duplikaat
 
         /*
@@ -931,22 +933,22 @@ public class CMaInterpreterTest {
          * Käsud: LOADR, STORER, RETURN.
          */
         pw.visit(_end);
-        pw.visit(LOADR, 2, 1);    // 36: push r (FP+2)
+        pw.visit(LOADR, 2, 1);    // 36: laadi muutuja 'r' (FP+2)
         pw.visit(STORER, -3, 1);  // 37: tulemus → parameetri pessa (FP-3)
-        pw.visit(RETURN, 3);             // 38: tagasta, q=3
+        pw.visit(RETURN, 3);             // 38: tagasta
 
         return CMaInterpreter.run(pw.toProgram());
     }
 
     @Test
     public void test_dispatch_inc() {
-        /* op=0 → inc(5, 1) = 6: kasutab LOADRC, MARK, CALL, SLIDE 1 1 */
+        /* muutuja 'op'=0 → inc(5, 1) = 6: kasutab LOADRC, MARK, CALL, SLIDE 0 1 */
         assertEquals(new CMaStack(6), runDispatch(0));
     }
 
     @Test
     public void test_dispatch_double() {
-        /* op=1 → 5*2 = 10: kasutab LOADR, MUL, STORER */
+        /* muutuja 'op'=1 → 5*2 = 10: kasutab LOADR, MUL, STORER */
         assertEquals(new CMaStack(10), runDispatch(1));
     }
 }
