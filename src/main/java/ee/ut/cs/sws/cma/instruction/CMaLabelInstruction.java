@@ -6,6 +6,9 @@ public record CMaLabelInstruction(Code code, CMaLabel label) implements CMaInstr
 
     public enum Code {
         //@formatter:off
+        /** lae label väärtus pinule */
+        LOADLC,
+
         /** hüppa labelile */
         JUMP,
 

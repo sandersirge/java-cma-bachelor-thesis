@@ -187,6 +187,7 @@ public class CMaInterpreter {
             }
             case CMaLabelInstruction(CMaLabelInstruction.Code code, CMaLabel label) -> {
                 switch (code) {
+                    case LOADLC -> stack.push(getLabelTarget(label));
                     case JUMP -> pc = getLabelTarget(label);
                     case JUMPZ -> {
                         if (!CMaUtils.int2bool(stack.pop()))
