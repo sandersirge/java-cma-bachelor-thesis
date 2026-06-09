@@ -62,7 +62,7 @@ public class CMaInterpreterIntegrationTest {
         /* === Peaprogramm (indeksid 0-5): kutsub run(n) === */
         pw.visit(LOADC, n);                   // 0: muutuja 'n' väärtus, run parameeter
         pw.visit(MARK);                       // 1: push EP, FP
-        pw.visit(LOADC, 6);              // 2: _run aadress = 6
+        pw.visit(LOADLC, _run);               // 2: _run aadress
         pw.visit(CALL);                       // 3
         pw.visit(SLIDE, 0, 1);    // 4: tõsta tulemus
         pw.visit(HALT);                       // 5
@@ -79,7 +79,7 @@ public class CMaInterpreterIntegrationTest {
         /* kutsu inc(muutuja 'n') */
         pw.visit(LOADR, -3, 1);   // 8: laadi muutuja 'n'
         pw.visit(MARK);                       // 9: push EP, FP
-        pw.visit(LOADC, 18);             // 10: _inc aadress = 18
+        pw.visit(LOADLC, _inc);               // 10: _inc aadress = 18
         pw.visit(CALL);                       // 11
         pw.visit(SLIDE, 0, 1);    // 12: tõsta inc tulemus
 
@@ -164,8 +164,8 @@ public class CMaInterpreterIntegrationTest {
         /* === Peaprogramm (indeksid 0-5): kutsub run(n) === */
         pw.visit(LOADC, n);                   // 0: muutuja 'n' väärtus, run parameetriks
         pw.visit(MARK);                       // 1: push EP, FP
-        pw.visit(LOADC, 6);              // 2: _run aadress = 6
-        pw.visit(CALL);                       // 3: FP=3, PC=6, S[3]=4
+        pw.visit(LOADLC, _run);               // 2: _run aadress
+        pw.visit(CALL);                       // 3: FP=3, S[3]=4
         pw.visit(SLIDE, 0, 1);    // 4: tõsta tulemus
         pw.visit(HALT);                       // 5
 
@@ -181,7 +181,7 @@ public class CMaInterpreterIntegrationTest {
         /* kutsu fac(muutuja 'n'): muutuja 'n' asub FP-3 */
         pw.visit(LOADR, -3, 1);   // 8: laadi muutuja 'n'
         pw.visit(MARK);                       // 9: push EP, FP
-        pw.visit(LOADC, 18);             // 10: _fac aadress = 18
+        pw.visit(LOADLC, _fac);               // 10: _fac aadress
         pw.visit(CALL);                       // 11
         pw.visit(SLIDE, 0, 1);    // 12: tõsta fac tulemus
 
@@ -213,7 +213,7 @@ public class CMaInterpreterIntegrationTest {
         pw.visit(LOADC, 1);              // 28
         pw.visit(SUB);                        // 29: muutuja 'n' - 1
         pw.visit(MARK);                       // 30: push EP, FP
-        pw.visit(LOADC, 18);             // 31: _fac aadress = 18
+        pw.visit(LOADLC, _fac);               // 31: _fac aadress
         pw.visit(CALL);                       // 32
         pw.visit(SLIDE, 0, 1);    // 33: tõsta fac tulemus
         pw.visit(MUL);                        // 34: muutuja 'n' * fac(muutuja 'n' - 1)
@@ -284,8 +284,8 @@ public class CMaInterpreterIntegrationTest {
         /* Peaprogramm (0–5): kutsub run(op). */
         pw.visit(LOADC, op);                  // 0:  muutuja 'op' → parameeter run-ile
         pw.visit(MARK);                       // 1:  push EP(0), FP(0)
-        pw.visit(LOADC, 12);             // 2:  _run aadress = 12
-        pw.visit(CALL);                       // 3:  FP=3, PC=12, S[3]=4
+        pw.visit(LOADLC, _run);               // 2:  _run aadress
+        pw.visit(CALL);                       // 3:  FP=3, S[3]=4
         pw.visit(SLIDE, 0, 1);    // 4:  tõsta tulemus parameetri kohalt
         pw.visit(HALT);                       // 5:  peaprogramm lõpeb
 
@@ -335,8 +335,8 @@ public class CMaInterpreterIntegrationTest {
         pw.visit(LOAD);                       // 22: loe muutuja 'n' väärtus
         pw.visit(LOADC, 1);              // 23: muutuja 'step'=1 (teine arg inc-ile)
         pw.visit(MARK);                       // 24: push EP, FP
-        pw.visit(LOADC, 6);              // 25: _inc aadress = 6
-        pw.visit(CALL);                       // 26: FP=10, PC=6, S[10]=27
+        pw.visit(LOADLC, _inc);               // 25: _inc aadress
+        pw.visit(CALL);                       // 26
         pw.visit(SLIDE, 0, 1);    // 27: tulemus juba pinul (no-op)
         pw.visit(STORER, 2, 1);   // 28: muutuja 'r' = tulemus (FP+2)
         pw.visit(POP);                        // 29: eemalda STORER duplikaat
@@ -417,7 +417,7 @@ public class CMaInterpreterIntegrationTest {
         /* === Peaprogramm (indeksid 0-5): kutsub run(n) === */
         pw.visit(LOADC, n);                   // 0: muutuja 'n' väärtus, run parameeter
         pw.visit(MARK);                       // 1: push EP, FP
-        pw.visit(LOADC, 19);             // 2: _run aadress = 19
+        pw.visit(LOADLC, _run);               // 2: _run aadress
         pw.visit(CALL);                       // 3
         pw.visit(SLIDE, 0, 1);    // 4: tõsta tulemus
         pw.visit(HALT);                       // 5
@@ -463,7 +463,7 @@ public class CMaInterpreterIntegrationTest {
         /* kutsu compute(muutuja 'n') */
         pw.visit(LOADR, -3, 1);   // 20: laadi muutuja 'n'
         pw.visit(MARK);                       // 21: push EP, FP
-        pw.visit(LOADC, 6);              // 22: _compute aadress = 6
+        pw.visit(LOADLC, _compute);           // 22: _compute aadress
         pw.visit(CALL);                       // 23
         /* void tagastus: pinu on taastatud, SLIDE pole vaja */
 
@@ -546,7 +546,7 @@ public class CMaInterpreterIntegrationTest {
         /* === Peaprogramm (indeksid 0-5): kutsub run(n) === */
         pw.visit(LOADC, n);                   // 0: muutuja 'n' väärtus, run parameeter
         pw.visit(MARK);                       // 1: push EP, FP
-        pw.visit(LOADC, 6);              // 2: _run aadress = 6
+        pw.visit(LOADLC, _run);               // 2: _run aadress
         pw.visit(CALL);                       // 3
         pw.visit(SLIDE, 0, 1);    // 4: tõsta tulemus
         pw.visit(HALT);                       // 5
@@ -563,7 +563,7 @@ public class CMaInterpreterIntegrationTest {
         /* kutsu fibo(muutuja 'n') */
         pw.visit(LOADR, -3, 1);   // 8: laadi muutuja 'n'
         pw.visit(MARK);                       // 9: push EP, FP
-        pw.visit(LOADC, 18);             // 10: _fibo aadress = 18
+        pw.visit(LOADLC, _fibo);               // 10: _fibo aadress
         pw.visit(CALL);                       // 11
         pw.visit(SLIDE, 0, 1);    // 12: tõsta fibo tulemus
 
@@ -591,7 +591,7 @@ public class CMaInterpreterIntegrationTest {
         pw.visit(STORER, -3, 1);  // 24: tulemus → parameetri pessa
         pw.visit(RETURN, 3);             // 25
 
-        /* lülituslause: n=0, n=1 → baassjuhud; n>1 → rekursiivne juht */
+        /* lülituslause: n=0, n=1 → baasjuhud; n>1 → rekursiivne juht */
         pw.visit(_non_neg);                   // label indeksil 26
         pw.visit(LOADR, -3, 1);   // 26: laadi muutuja 'n'
         pw.visit(LOADC, 1);              // 27
@@ -622,7 +622,7 @@ public class CMaInterpreterIntegrationTest {
         pw.visit(LOADC, 1);              // 41
         pw.visit(SUB);                        // 42: muutuja 'n' - 1
         pw.visit(MARK);                       // 43: push EP, FP
-        pw.visit(LOADC, 18);             // 44: _fibo aadress = 18
+        pw.visit(LOADLC, _fibo);              // 44: _fibo aadress
         pw.visit(CALL);                       // 45
         pw.visit(SLIDE, 0, 1);    // 46: fibo(n-1) tulemus pinul
 
@@ -631,7 +631,7 @@ public class CMaInterpreterIntegrationTest {
         pw.visit(LOADC, 2);              // 48
         pw.visit(SUB);                        // 49: muutuja 'n' - 2
         pw.visit(MARK);                       // 50: push EP, FP
-        pw.visit(LOADC, 18);             // 51: _fibo aadress = 18
+        pw.visit(LOADLC, _fibo);              // 51: _fibo aadress
         pw.visit(CALL);                       // 52
         pw.visit(SLIDE, 0, 1);    // 53: fibo(n-2) tulemus pinul
 

@@ -20,10 +20,10 @@ public record CMaIntInstruction(Code code, int arg) implements CMaInstruction<CM
         LOADRC,
 
         /** loe m väärtust mälust aadressil S[SP], laienda stack m-1 pesa võrra */
-        LOADM,
+        LOAD_m,
 
         /** kirjuta m väärtust S[SP-m..SP-1] mällu aadressile S[SP], eemalda aadress */
-        STOREM,
+        STORE_m,
 
         /** sea piirviit EP = SP + m, kontrolli EP >= HP */
         ENTER,

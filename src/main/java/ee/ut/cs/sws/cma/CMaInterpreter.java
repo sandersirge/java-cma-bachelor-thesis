@@ -5,30 +5,37 @@ import ee.ut.cs.sws.cma.instruction.*;
 import static ee.ut.cs.sws.cma.instruction.CMaBasicInstruction.Code.LOAD;
 import static ee.ut.cs.sws.cma.instruction.CMaBasicInstruction.Code.STORE;
 import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.LOADC;
-import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.LOADM;
-import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.STOREM;
+import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.LOAD_m;
+import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.STORE_m;
 import static ee.ut.cs.sws.cma.instruction.CMaIntInstruction.Code.LOADRC;
 
 public class CMaInterpreter {
+
+    public static final int DEFAULT_MAX_HEAP = Integer.MAX_VALUE;
 
     private final CMaProgram program;
     private final CMaStack stack;
     private int pc = 0;
     private int fp = 0;  // Frame Pointer
     private int ep = 0;  // Extreme Pointer
-    private int hp = Integer.MAX_VALUE;  // Heap Pointer
+    private final int max_heap;      // Heap Pointer (= maxHeap)
 
-    private CMaInterpreter(CMaProgram program, CMaStack initialStack) {
+    private CMaInterpreter(CMaProgram program, CMaStack initialStack, int maxHeap) {
         this.program = program;
         this.stack = new CMaStack(initialStack);
+        this.max_heap = maxHeap;
     }
 
     public static CMaStack run(CMaProgram program) {
-        return run(program, new CMaStack());
+        return run(program, new CMaStack(), DEFAULT_MAX_HEAP);
     }
 
     public static CMaStack run(CMaProgram program, CMaStack initialStack) {
-        CMaInterpreter interpreter = new CMaInterpreter(program, initialStack);
+        return run(program, initialStack, DEFAULT_MAX_HEAP);
+    }
+
+    public static CMaStack run(CMaProgram program, CMaStack initialStack, int maxHeap) {
+        CMaInterpreter interpreter = new CMaInterpreter(program, initialStack, maxHeap);
         return interpreter.execute();
     }
 
@@ -112,7 +119,7 @@ public class CMaInterpreter {
                     }
                     case ALLOC -> stack.allocate(arg);
                     case LOADRC -> stack.push(fp + arg);
-                    case LOADM -> {
+                    case LOAD_m -> {
                         // LOADM m: S[SP+i] ← S[S[SP]+i] for i=m-1..0; SP ← SP + m - 1
                         int sp = stack.size() - 1;
                         int target = stack.get(sp);                         // S[SP] = base address
@@ -121,27 +128,28 @@ public class CMaInterpreter {
                             stack.set(sp + i, stack.get(target + i));       // S[SP+i] ← S[target+i]
                         }
                     }
-                    case STOREM -> {
-                        // STOREM m: S[S[SP]+i] ← S[SP-m+i] for i=0..m-1; eemalda aadress
+                    case STORE_m -> {
+                        // STORE_m m: S[S[SP]+i] ← S[SP-m+i] for i=0..m-1; eemalda aadress
                         int sp = stack.size() - 1;
                         int target = stack.get(sp);                         // S[SP] = destination address
                         for (int i = 0; i < arg; i++) {
                             stack.set(target + i, stack.get(sp - arg + i)); // S[target+i] ← S[SP-m+i]
                         }
+                        stack.truncate(sp);
                     }
                     case ENTER -> {
                         // EP = SP + m; kui EP >= HP, siis viga
                         ep = stack.size() - 1 + arg;
-                        if (ep >= hp)
-                            throw new CMaException("Stack Overflow: EP(%d) >= HP(%d)".formatted(ep, hp));
+                        if (ep >= max_heap)
+                            throw new CMaException("Stack Overflow: EP(%d) >= HP(%d)".formatted(ep, max_heap));
                     }
                     case RETURN -> {
                         // PC = S[FP]; EP = S[FP-2]; kontrolli EP >= HP;
                         // SP = FP - q (truncate(FP - q + 1)); FP = S[FP-1]
                         pc = stack.get(fp);                    // taasta tagastusaadress
                         ep = stack.get(fp - 2);                // taasta vana EP
-                        if (ep >= hp)
-                            throw new CMaException("Stack Overflow: EP(%d) >= HP(%d)".formatted(ep, hp));
+                        if (ep >= max_heap)
+                            throw new CMaException("Stack Overflow: EP(%d) >= HP(%d)".formatted(ep, max_heap));
                         int newSp = fp - arg;                  // SP = FP - q
                         int newFp = stack.get(fp - 1);         // taasta vana FP
                         stack.truncate(newSp + 1);    // kärbi stack: size = SP + 1
@@ -176,12 +184,12 @@ public class CMaInterpreter {
                     case LOADR -> {
                         // LOADR j m = LOADRC j; LOADM m
                         execute(new CMaIntInstruction(LOADRC, arg1));
-                        execute(new CMaIntInstruction(LOADM, arg2));
+                        execute(new CMaIntInstruction(LOAD_m, arg2));
                     }
                     case STORER -> {
-                        // STORER j m = LOADRC j; STOREM m
+                        // STORER j m = LOADRC j; STORE_m m
                         execute(new CMaIntInstruction(LOADRC, arg1));
-                        execute(new CMaIntInstruction(STOREM, arg2));
+                        execute(new CMaIntInstruction(STORE_m, arg2));
                     }
                 }
             }

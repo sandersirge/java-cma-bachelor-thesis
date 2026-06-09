@@ -1,6 +1,6 @@
 package ee.ut.cs.sws.cma;
 
-import ee.ut.cs.sws.cma.instruction.CMaInstruction;
+import ee.ut.cs.sws.cma.instruction.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,8 +10,7 @@ import java.util.stream.Collectors;
 
 public record CMaProgram(List<CMaInstruction<?>> instructions, Map<CMaLabel, Integer> labels) {
 
-    @Override
-    public String toString() {
+    private String render(boolean vamMode) {
         Set<Map.Entry<CMaLabel, Integer>> remainingLabelEntries = new HashMap<>(labels).entrySet();
         StringJoiner joiner = new StringJoiner("\n");
 
@@ -25,7 +24,7 @@ public record CMaProgram(List<CMaInstruction<?>> instructions, Map<CMaLabel, Int
                     iterator.remove();
                 }
             }
-            builder.append(instruction.toString());
+            builder.append(vamMode ? toVamInstruction(instruction) : instruction.toString());
             joiner.add(builder.toString());
         }
 
@@ -39,6 +38,39 @@ public record CMaProgram(List<CMaInstruction<?>> instructions, Map<CMaLabel, Int
         }
 
         return joiner.toString();
+    }
+
+    /**
+     * Teisendab ühe käsu Vam-iga ühilduvasse formaati.
+     * <ul>
+     *   <li>{@code LOADLC label} → {@code LOADC <resolved address>}</li>
+     *   <li>{@code RETURN q} → {@code RETURN} (Vam eeldab vaikimisi q=3)</li>
+     *   <li>{@code LOADR j m}, {@code STORER j m}, {@code SLIDE q m} → ainult esimene argument</li>
+     * </ul>
+     */
+    private String toVamInstruction(CMaInstruction<?> instruction) {
+        return switch (instruction) {
+            case CMaLabelInstruction(CMaLabelInstruction.Code code, CMaLabel label) -> {
+                if (code == CMaLabelInstruction.Code.LOADLC) {
+                    yield "LOADC " + label;
+                }
+                yield instruction.toString();
+            }
+            case CMaIntInstruction(CMaIntInstruction.Code code, int arg) -> {
+                if (code == CMaIntInstruction.Code.RETURN) {
+                    yield "RETURN";
+                }
+                yield instruction.toString();
+            }
+            case CMaIntIntInstruction(CMaIntIntInstruction.Code code, int arg1, int arg2) ->
+                    code.name() + " " + arg1;
+            default -> instruction.toString();
+        };
+    }
+
+    @Override
+    public String toString() {
+        return render(false);
     }
 
     public CMaProgram append(CMaProgram other) {
@@ -56,8 +88,21 @@ public record CMaProgram(List<CMaInstruction<?>> instructions, Map<CMaLabel, Int
         return new CMaProgram(instructions, labels);
     }
 
+    /**
+     * Tagastab programmi esituse Vam-iga ühilduvas formaadis koos algpinu laadimiskäskudega.
+     *
+     * <p>Teisendused:</p>
+     * <ul>
+     *   <li>{@code LOADLC label} → {@code LOADC <lahendatud aadress>}</li>
+     *   <li>{@code RETURN q} → {@code RETURN} (Vam eeldab vaikimisi q=3)</li>
+     *   <li>{@code LOADR j m}, {@code STORER j m}, {@code SLIDE q m} → ainult esimene argument</li>
+     * </ul>
+     *
+     * <p>See on ohutu eeldusel, et kõik muutujad on ühe sõna suurused ({@code int}),
+     * tagastustüübid on {@code void} või {@code int}, ning RETURN argument on alati 3.</p>
+     */
     public String toString(CMaStack initialStack) {
-        return initialStack.toLoadProgram().append(this).toString();
+        return initialStack.toLoadProgram().append(this).render(true);
     }
 
     public void toFile(Path path, CMaStack initialStack) throws IOException {

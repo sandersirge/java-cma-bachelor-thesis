@@ -10,7 +10,7 @@ public record CMaIntIntInstruction(Code code, int arg1, int arg2) implements CMa
         /** loe m väärtust FP-suhteliselt aadressilt j: LOADRC j; LOADM m */
         LOADR,
 
-        /** salvesta m väärtust FP-suhtelisele aadressile j: LOADRC j; STOREM m */
+        /** salvesta m väärtust FP-suhtelisele aadressile j: LOADRC j; STORE_m m */
         STORER,
         //@formatter:on
     }

@@ -235,7 +235,7 @@ public class CMaInterpreterTest {
         assertInterpreted(new CMaStack(5, 0, 0));
     }
 
-    // Funktsioonikutsed: Samm 3 — LOADRC, LOADR, STORER, LOADM ja STOREM käskude testimine
+    // Funktsioonikutsed: Samm 3 — LOADRC, LOADR, STORER, LOAD_m ja STORE_m käskude testimine
 
     @Test
     public void test_loadrc() {
@@ -249,7 +249,7 @@ public class CMaInterpreterTest {
     public void test_loadr() {
         /*
          * stack: [10, 20, 30], fp = 0 (vaikeväärtus)
-         * LOADR 2 1 → LOADRC 2; LOADM 1 → push(fp + 2) = push(2), load 1 väärtus: push(stack[2]) = 30
+         * LOADR 2 1 → LOADRC 2; LOAD_m 1 → push(fp + 2) = push(2), load 1 väärtus: push(stack[2]) = 30
          */
         pw.visit(LOADR, 2, 1);
 
@@ -260,20 +260,20 @@ public class CMaInterpreterTest {
     public void test_storer() {
         /*
          * stack: [10, 20, 30], fp = 0 (vaikeväärtus)
-         * LOADC 99; STORER 1 1 → LOADRC 1; STOREM 1
+         * LOADC 99; STORER 1 1 → LOADRC 1; STORE_m 1
          *   LOADRC 1: push(fp + 1) = push(1) → [10, 20, 30, 99, 1]
-         *   STOREM 1: stack[1] = stack[SP-1] = 99, SP ei muutu → [10, 99, 30, 99, 1]
+         *   STORE_m 1: stack[1] = stack[SP-1] = 99, truncate(SP) eemaldab aadressi → [10, 99, 30, 99]
          */
         pw.visit(LOADC, 99);
         pw.visit(STORER, 1, 1);
 
-        assertInterpreted(new CMaStack(10, 99, 30, 99, 1), new CMaStack(10, 20, 30));
+        assertInterpreted(new CMaStack(10, 99, 30, 99), new CMaStack(10, 20, 30));
     }
 
     @Test
     public void test_loadm() {
         /*
-         * LOADM 2: lae 2 väärtust aadressilt S[SP]
+         * LOAD_m 2: lae 2 väärtust aadressilt S[SP]
          * stack enne: [10, 20, 30, 1]   (addr = 1, loeb stack[1] ja stack[2])
          * Tsükkel tagurpidi:
          *   i=1: S[SP+1] ← S[S[SP]+1] → S[4] ← S[2] = 30  (laiendab stacki)
@@ -285,7 +285,7 @@ public class CMaInterpreterTest {
         pw.visit(LOADC, 20);
         pw.visit(LOADC, 30);
         pw.visit(LOADC, 1);              // aadress: stack[1..2] = [20, 30]
-        pw.visit(LOADM, 2);
+        pw.visit(LOAD_m, 2);
 
         assertInterpreted(new CMaStack(10, 20, 30, 20, 30));
     }
@@ -293,16 +293,16 @@ public class CMaInterpreterTest {
     @Test
     public void test_storem() {
         /*
-         * STOREM 2: kirjuta 2 väärtust aadressile S[SP], SP ei muutu
+         * STORE_m 2: kirjuta 2 väärtust aadressile S[SP], eemalda aadress
          * stack enne: [0, 0, 7, 8, 0]  (addr = 0, kirjutab stack[2] ja stack[3] → stack[0] ja stack[1])
          *   i=0: S[S[SP]+0] ← S[SP-2+0] → S[0] ← S[2] = 7
          *   i=1: S[S[SP]+1] ← S[SP-2+1] → S[1] ← S[3] = 8
-         * aadress (0) jääb pinule → SP ei muutu
-         * stack pärast: [7, 8, 7, 8, 0]
+         *   truncate(SP) eemaldab aadressi (0) pinult
+         * stack pärast: [7, 8, 7, 8]
          */
-        pw.visit(STOREM, 2);
+        pw.visit(STORE_m, 2);
 
-        assertInterpreted(new CMaStack(7, 8, 7, 8, 0), new CMaStack(0, 0, 7, 8, 0));
+        assertInterpreted(new CMaStack(7, 8, 7, 8), new CMaStack(0, 0, 7, 8, 0));
     }
 
     // Funktsioonikutsed: Samm 4 — MARK ja CALL käskude testimine
@@ -311,10 +311,10 @@ public class CMaInterpreterTest {
     public void test_mark_call() {
         /*
          * Stack enne: []
-         * LOADC 42  → [42]                    (parameeter)
-         * MARK      → [42, 0, 0]              (push EP=0, push FP=0)
-         * LOADC 5   → [42, 0, 0, 5]           (funktsiooni aadress)
-         * CALL      → FP=3, PC=5, S[3]=4      → stack: [42, 0, 0, 4]
+         * LOADC 42    → [42]                    (parameeter)
+         * MARK        → [42, 0, 0]              (push EP=0, push FP=0)
+         * LOADLC _func → [42, 0, 0, 5]          (funktsiooni aadress)
+         * CALL        → FP=3, PC=5, S[3]=4      → stack: [42, 0, 0, 4]
          * indeks 4: HALT (tagastuspunkt, siia ei jõua)
          * indeks 5: HALT (funktsioon peatub kohe)
          */
@@ -322,7 +322,7 @@ public class CMaInterpreterTest {
 
         pw.visit(LOADC, 42);             // 0: parameeter
         pw.visit(MARK);                       // 1: push EP(0), push FP(0)
-        pw.visit(LOADC, 5);              // 2: funktsiooni aadress (indeks 5)
+        pw.visit(LOADLC, _func);              // 2: funktsiooni aadress (indeks 5)
         pw.visit(CALL);                       // 3: FP=3, PC=5, S[3]=4 (tagastusaadress)
         pw.visit(HALT);                       // 4: tagastuspunkt
         pw.visit(_func);                      // 5: funktsiooni algus
@@ -351,11 +351,11 @@ public class CMaInterpreterTest {
     public void test_enter_in_function() {
         /*
          * MARK/CALL/ENTER tsükkel: funktsioon kutsub ja ENTER seab EP
-         * LOADC 42 → [42]
-         * MARK     → [42, 0, 0]
-         * LOADC 5  → [42, 0, 0, 5]    (funktsiooni aadress, _func label indeksil 5)
-         * CALL     → FP=3, PC=5, S[3]=4 → [42, 0, 0, 4]
-         * HALT     (tagastuspunkt, indeks 4)
+         * LOADC 42      → [42]
+         * MARK          → [42, 0, 0]
+         * LOADLC _func  → [42, 0, 0, 5]    (funktsiooni aadress)
+         * CALL          → FP=3, PC=5, S[3]=4 → [42, 0, 0, 4]
+         * HALT          (tagastuspunkt, indeks 4)
          * _func (indeks 5): ENTER 3 → EP = (4-1) + 3 = 6
          * MARK → push EP(6), push FP(3) → [42, 0, 0, 4, 6, 3]
          * HALT
@@ -364,7 +364,7 @@ public class CMaInterpreterTest {
 
         pw.visit(LOADC, 42);             // 0: parameeter
         pw.visit(MARK);                       // 1: push EP(0), push FP(0)
-        pw.visit(LOADC, 5);              // 2: funktsiooni aadress (indeks 5)
+        pw.visit(LOADLC, _func);              // 2: funktsiooni aadress (indeks 5)
         pw.visit(CALL);                       // 3: FP=3, PC=5, S[3]=4
         pw.visit(HALT);                       // 4: tagastuspunkt
 
@@ -385,23 +385,23 @@ public class CMaInterpreterTest {
          * Täielik kutse-tagastus tsükkel:
          * Peaprogramm kutsub funktsiooni, mis kohe tagastab.
          *
-         * 0: LOADC 42      → [42]                    (parameeter)
-         * 1: MARK           → [42, 0, 0]              (push EP=0, FP=0)
-         * 2: LOADC 6        → [42, 0, 0, 6]           (funktsiooni aadress)
-         * 3: CALL           → FP=3, PC=6, S[3]=4      → [42, 0, 0, 4]
-         * 4: HALT           (tagastuspunkt)
+         * 0: LOADC 42       → [42]                    (parameeter)
+         * 1: MARK            → [42, 0, 0]              (push EP=0, FP=0)
+         * 2: LOADLC _func    → [42, 0, 0, 5]           (funktsiooni aadress)
+         * 3: CALL            → FP=3, PC=5, S[3]=4      → [42, 0, 0, 4]
+         * 4: HALT            (tagastuspunkt)
          *
          * _func (indeks 5):
-         * 5: ENTER 0        → EP = (4-1)+0 = 3
-         * 6: RETURN 3       → PC=S[3]=4, EP=S[1]=0, FP=S[2]=0
-         *                     SP = 3-3 = 0, truncate(1) → [42]
-         *                     PC=4 → jõuab HALT-i
+         * 5: ENTER 0         → EP = (4-1)+0 = 3
+         * 6: RETURN 3        → PC=S[3]=4, EP=S[1]=0, FP=S[2]=0
+         *                      SP = 3-3 = 0, truncate(1) → [42]
+         *                      PC=4 → jõuab HALT-i
          */
         CMaLabel _func = new CMaLabel();
 
         pw.visit(LOADC, 42);             // 0: parameeter
         pw.visit(MARK);                       // 1: push EP(0), push FP(0)
-        pw.visit(LOADC, 6);              // 2: funktsiooni aadress
+        pw.visit(LOADLC, _func);              // 2: funktsiooni aadress
         pw.visit(CALL);                       // 3: FP=3, PC=5, S[3]=4
         pw.visit(HALT);                       // 4: tagastuspunkt
 
@@ -418,25 +418,25 @@ public class CMaInterpreterTest {
         /*
          * Funktsioon eraldab lokaalse muutuja, kirjutab sinna ja tagastab.
          *
-         * 0: LOADC 10       → [10]                    (parameeter)
-         * 1: MARK           → [10, 0, 0]
-         * 2: LOADC 5        → [10, 0, 0, 5]
-         * 3: CALL           → FP=3, PC=5, S[3]=4      → [10, 0, 0, 4]
+         * 0: LOADC 10        → [10]                    (parameeter)
+         * 1: MARK             → [10, 0, 0]
+         * 2: LOADLC _func     → [10, 0, 0, 5]
+         * 3: CALL             → FP=3, PC=5, S[3]=4      → [10, 0, 0, 4]
          * 4: HALT
          *
          * _func (indeks 5):
-         * 5: ENTER 1        → EP = (4-1)+1 = 4
-         * 6: ALLOC 1        → [10, 0, 0, 4, 0]        (lokaalne muutuja indeksil 4)
+         * 5: ENTER 1         → EP = (4-1)+1 = 4
+         * 6: ALLOC 1         → [10, 0, 0, 4, 0]        (lokaalne muutuja indeksil 4)
          * 7: LOADC 99
-         * 8: STORER 1 1     → stack[FP+1]=stack[4]=99  → [10, 0, 0, 4, 99, 99]
-         * 9: POP            → [10, 0, 0, 4, 99]
-         * 10: RETURN 3      → PC=4, EP=0, SP=3-3=0, FP=0, truncate(1) → [10]
+         * 8: STORER 1 1      → stack[FP+1]=stack[4]=99
+         * 9: POP
+         * 10: RETURN 3       → PC=4, EP=0, SP=3-3=0, FP=0, truncate(1) → [10]
          */
         CMaLabel _func = new CMaLabel();
 
         pw.visit(LOADC, 10);             // 0: parameeter
         pw.visit(MARK);                       // 1
-        pw.visit(LOADC, 5);              // 2: funktsiooni aadress
+        pw.visit(LOADLC, _func);              // 2: funktsiooni aadress
         pw.visit(CALL);                       // 3
         pw.visit(HALT);                       // 4
 
