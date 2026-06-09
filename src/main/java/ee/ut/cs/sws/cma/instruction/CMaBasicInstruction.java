@@ -37,6 +37,12 @@ public record CMaBasicInstruction(Code code) implements CMaInstruction<CMaBasicI
 
         /** seiska programm */
         HALT,
+
+        /** salvesta EP ja FP stackile (täitmisraami ettevalmistus) */
+        MARK,
+
+        /** kutsu funktsioon: FP=SP, vaheta PC ja S[FP] */
+        CALL,
         //@formatter:on
     }
 

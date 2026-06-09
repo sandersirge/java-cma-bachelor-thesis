@@ -1,9 +1,10 @@
 plugins {
-    id 'java'
+    id 'java-library'
+    id 'maven-publish'
 }
 
-group = 'ee.ut.cs.sws'
-version = '1.0-SNAPSHOT'
+group = 'com.github.sandersirge'
+version = 'v0.0.2-pre_release'
 
 repositories {
     mavenCentral()
@@ -17,6 +18,30 @@ dependencies {
     // testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+java {
+    sourceCompatibility = JavaVersion.toVersion(25)
+    targetCompatibility = JavaVersion.toVersion(25)
+
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
+}
+
 //test {
 //    useJUnitPlatform()
 //}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            groupId = project.group
+            artifactId = 'java-cma-bachelor-thesis'
+            version = project.version
+        }
+    }
+}
